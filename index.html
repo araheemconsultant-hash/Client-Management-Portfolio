@@ -418,6 +418,16 @@ let driveAccessToken = null;
 let driveFileId = null;
 let isSyncing = false;
 
+// ==================== AUTO-RECONNECT DRIVE TOKEN ====================
+const storedDriveToken = localStorage.getItem('driveAccessToken');
+if (storedDriveToken) {
+    driveAccessToken = storedDriveToken;
+    const db = getDB();
+    driveFileId = db.driveFileId || null;
+    updateDriveUI(true);   // show "Connected" immediately
+    syncToDrive(db);       // fetch real Drive data
+}
+
 // ==================== LOAD DATA FROM DRIVE ====================
 async function loadDataFromDrive() {
     if (!driveAccessToken) return;
@@ -437,10 +447,10 @@ async function loadDataFromDrive() {
         );
         const data = await fileResponse.json();
 
-        populateUIWithData(data); // <-- Replace with your function that updates the UI/table
+        populateUIWithData(data); // <-- Updates the dashboard with Drive data
     } else {
         driveFileId = null;
-        populateUIWithData([]); // empty if no file yet
+        populateUIWithData(getDB()); // use local DB if no file exists
     }
 }
 
@@ -479,6 +489,47 @@ async function saveDataToDrive(data) {
         const file = await createResponse.json();
         driveFileId = file.id;
     }
+}
+
+// ==================== HANDLE DRIVE CONNECT ====================
+function handleDriveConnect() {
+    if (!DRIVE_CLIENT_ID || DRIVE_CLIENT_ID === '') {
+        showDriveSetupModal();
+        return;
+    }
+    if (driveAccessToken) {
+        // Disconnect
+        driveAccessToken = null;
+        driveFileId = null;
+        localStorage.removeItem('driveAccessToken');
+        updateDriveUI(false);
+        showToast('Disconnected from Google Drive', 'info');
+        return;
+    }
+    if (!window.google || !window.google.accounts) {
+        showToast('Google API not loaded. Add your Client ID and reload.', 'error');
+        return;
+    }
+
+    const tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: DRIVE_CLIENT_ID,
+        scope: DRIVE_SCOPES,
+        hint: 'araheem.consultant@gmail.com',
+        callback: async (res) => {
+            if (res.error) { showToast('Drive auth failed: ' + res.error, 'error'); return; }
+            
+            driveAccessToken = res.access_token;
+            localStorage.setItem('driveAccessToken', driveAccessToken); // persist token
+
+            const db = getDB();
+            driveFileId = db.driveFileId || null;
+            updateDriveUI(true);
+            showToast('✓ Connected to Google Drive!', 'success');
+
+            await syncToDrive(db); // fetch latest data immediately
+        }
+    });
+    tokenClient.requestAccessToken();
 }
 
 // ==================== LOAD DATA ON PAGE OPEN ====================
