@@ -523,33 +523,15 @@ function scheduleDriveSync(db) {
 
 function initDB() {
     const db = {
-        clients: [],      // start empty
-        fbr: [],          // start empty
-        secp: [],         // start empty
-        tasks: [],        // start empty
-        billing: [],      // start empty
-        documents: [],    // start empty
-        leads: [],        // start empty
-        users: [
-            {
-                id: 'u1',
-                name: 'A. Raheem',
-                email: 'araheem.consultant@gmail.com',
-                role: 'admin',
-                initials: 'AR',
-                active: true,
-                created: new Date().toISOString()
-            }
-        ],
-        audit: [],
-        currentUser: { id: 'u1', name: 'A. Raheem', role: 'admin', initials: 'AR' },
+        clients: [], fbr: [], secp: [], tasks: [], billing: [],
+        documents: [], leads: [],
+        users: [{id:'u1', name:'A. Raheem', email:'araheem.consultant@gmail.com', role:'admin', initials:'AR', active:true, created:new Date().toISOString()}],
+        audit: [], currentUser: {id:'u1', name:'A. Raheem', role:'admin', initials:'AR'},
         driveFileId: null
     };
-
     saveDB(db);
     return db;
 }
-
 
 function nextMonthDate(offset=0) {
   const d=new Date(); d.setDate(25); d.setMonth(d.getMonth()+offset);
