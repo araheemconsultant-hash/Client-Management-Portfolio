@@ -401,45 +401,40 @@
 
 <script>
 // ==================== DRIVE / BACKUP CONFIG ====================
-// Google Drive OAuth requires a Google Cloud project with your Client ID.
-// The Error 400 you saw means the Client ID was invalid/missing.
-// To enable real Drive sync: get your Client ID from console.cloud.google.com
-// and paste it below, then uncomment the GSI script in <head>.
-const DRIVE_CLIENT_ID = '280139619063-g30b20hjjngmg4v7ht7159jqdali7fec.apps.googleusercontent.com'; // Paste your OAuth 2.0 Client ID here when ready
-const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive';
+const DRIVE_CLIENT_ID = '280139619063-g30b20hjjngmg4v7ht7159jqdali7fec.apps.googleusercontent.com'; // Your Client ID
+const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
 const DRIVE_FILE_NAME = 'client-management-portal-data.json';
 let driveAccessToken = null;
 let driveFileId = null;
 let isSyncing = false;
 
-
-
-// ==================== Load latest data from Google Drive ====================
+// ==================== LOAD DATA FROM DRIVE ====================
 async function loadDataFromDrive() {
     if (!driveAccessToken) return;
 
-    const searchResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FILE_NAME}'&fields=files(id,name)`, {
-        headers: { 'Authorization': 'Bearer ' + driveAccessToken }
-    });
+    const searchResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FILE_NAME}'&fields=files(id,name)`,
+        { headers: { 'Authorization': 'Bearer ' + driveAccessToken } }
+    );
     const files = await searchResponse.json();
 
     if (files.files && files.files.length > 0) {
         driveFileId = files.files[0].id;
 
-        const fileResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
-            headers: { 'Authorization': 'Bearer ' + driveAccessToken }
-        });
+        const fileResponse = await fetch(
+            `https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`,
+            { headers: { 'Authorization': 'Bearer ' + driveAccessToken } }
+        );
         const data = await fileResponse.json();
 
-        populateUIWithData(data); // <-- Replace with your function that updates the table/UI
+        populateUIWithData(data); // <-- Replace with your function that updates the UI/table
     } else {
         driveFileId = null;
-        populateUIWithData([]); // empty data if file doesn't exist yet
+        populateUIWithData([]); // empty if no file yet
     }
 }
 
-
-// ==================== Save data to Google Drive ====================
+// ==================== SAVE DATA TO DRIVE ====================
 async function saveDataToDrive(data) {
     if (!driveAccessToken) return;
 
@@ -447,43 +442,54 @@ async function saveDataToDrive(data) {
 
     if (driveFileId) {
         // Update existing file
-        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': 'Bearer ' + driveAccessToken,
-                'Content-Type': 'application/json'
-            },
-            body
-        });
+        await fetch(
+            `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': 'Bearer ' + driveAccessToken,
+                    'Content-Type': 'application/json'
+                },
+                body
+            }
+        );
     } else {
-        // Create new file if it doesn't exist
-        const createResponse = await fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=media`, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + driveAccessToken,
-                'Content-Type': 'application/json'
-            },
-            body
-        });
+        // Create new file
+        const createResponse = await fetch(
+            `https://www.googleapis.com/upload/drive/v3/files?uploadType=media`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + driveAccessToken,
+                    'Content-Type': 'application/json'
+                },
+                body
+            }
+        );
         const file = await createResponse.json();
         driveFileId = file.id;
     }
 }
 
-
-// Load data on page load
+// ==================== LOAD DATA ON PAGE OPEN ====================
 window.addEventListener('load', () => {
     loadDataFromDrive();
 });
 
-
-// Example: when adding a new client/task
+// ==================== ADD NEW ENTRY FUNCTION ====================
 function addNewEntry(entry) {
-    dataArray.push(entry); // replace with your array variable
-    populateUIWithData(dataArray); // update the UI
-    saveDataToDrive(dataArray); // save to Drive
+    dataArray.push(entry); // Replace with your actual data array
+    populateUIWithData(dataArray); // Update your UI
+    saveDataToDrive(dataArray); // Save to Drive so all devices sync
 }
 
+// ==================== DELETE ENTRY FUNCTION ====================
+function deleteEntry(index) {
+    dataArray.splice(index, 1); // Remove entry from array
+    populateUIWithData(dataArray); // Update UI
+    saveDataToDrive(dataArray); // Save to Drive to sync deletion
+}
+</script>
 // ==================== STATE ====================
 const DB_KEY = 'ca_practice_db';
 
