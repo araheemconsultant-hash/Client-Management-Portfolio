@@ -400,35 +400,50 @@
 <div id="modal-container"></div>
 
 <script>
-// Auto-reconnect if we have a stored Drive token
-const storedDriveToken = localStorage.getItem('driveAccessToken');
-if (storedDriveToken) {
-    driveAccessToken = storedDriveToken;
-    const db = getDB();
-    driveFileId = db.driveFileId || null;
-    updateDriveUI(true);
-    syncToDrive(db); // fetch latest Drive data immediately
+// ==================== STATE / DB ====================
+const DB_KEY = 'ca_practice_db';
+
+function uid() { return Math.random().toString(36).substr(2,9)+Date.now().toString(36); }
+function nextMonthDate(offset=0) { const d=new Date(); d.setDate(25); d.setMonth(d.getMonth()+offset); return d.toISOString().split('T')[0]; }
+
+function initDB() {
+    const db = {
+        clients: [], fbr: [], secp: [], tasks: [], billing: [],
+        documents: [], leads: [],
+        users: [{id:'u1', name:'A. Raheem', email:'araheem.consultant@gmail.com', role:'admin', initials:'AR', active:true, created:new Date().toISOString()}],
+        audit: [], currentUser: {id:'u1', name:'A. Raheem', role:'admin', initials:'AR'},
+        driveFileId: null
+    };
+    saveDB(db);
+    return db;
 }
 
-// ==================== DRIVE / BACKUP CONFIG ====================
-const DRIVE_CLIENT_ID = '280139619063-g30b20hjjngmg4v7ht7159jqdali7fec.apps.googleusercontent.com'; // Your Client ID
+function getDB() {
+    const raw = localStorage.getItem(DB_KEY);
+    if (!raw) return initDB();
+    try { return JSON.parse(raw); } catch(e) { return initDB(); }
+}
+
+function saveDB(db) {
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+    scheduleDriveSync(db);
+}
+
+let syncTimer = null;
+function scheduleDriveSync(db) {
+    if (!driveAccessToken) return; // Only sync if Drive connected
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => syncToDrive(db), 1500);
+}
+
+// ==================== GOOGLE DRIVE / BACKUP ====================
+const DRIVE_CLIENT_ID = '280139619063-g30b20hjjngmg4v7ht7159jqdali7fec.apps.googleusercontent.com';
 const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
 const DRIVE_FILE_NAME = 'client-management-portal-data.json';
 let driveAccessToken = null;
 let driveFileId = null;
 let isSyncing = false;
 
-// ==================== AUTO-RECONNECT DRIVE TOKEN ====================
-const storedDriveToken = localStorage.getItem('driveAccessToken');
-if (storedDriveToken) {
-    driveAccessToken = storedDriveToken;
-    const db = getDB();
-    driveFileId = db.driveFileId || null;
-    updateDriveUI(true);   // show "Connected" immediately
-    syncToDrive(db);       // fetch real Drive data
-}
-
-// ==================== LOAD DATA FROM DRIVE ====================
 async function loadDataFromDrive() {
     if (!driveAccessToken) return;
 
@@ -446,57 +461,34 @@ async function loadDataFromDrive() {
             { headers: { 'Authorization': 'Bearer ' + driveAccessToken } }
         );
         const data = await fileResponse.json();
-
-        populateUIWithData(data); // <-- Updates the dashboard with Drive data
+        populateUIWithData(data); // Updates dashboard/UI
     } else {
         driveFileId = null;
-        populateUIWithData(getDB()); // use local DB if no file exists
+        populateUIWithData(getDB()); // fallback to local DB
     }
 }
 
-// ==================== SAVE DATA TO DRIVE ====================
 async function saveDataToDrive(data) {
     if (!driveAccessToken) return;
-
     const body = JSON.stringify(data);
 
     if (driveFileId) {
-        // Update existing file
         await fetch(
             `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
-            {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': 'Bearer ' + driveAccessToken,
-                    'Content-Type': 'application/json'
-                },
-                body
-            }
+            { method:'PATCH', headers:{ 'Authorization':'Bearer '+driveAccessToken,'Content-Type':'application/json' }, body }
         );
     } else {
-        // Create new file
         const createResponse = await fetch(
             `https://www.googleapis.com/upload/drive/v3/files?uploadType=media`,
-            {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + driveAccessToken,
-                    'Content-Type': 'application/json'
-                },
-                body
-            }
+            { method:'POST', headers:{ 'Authorization':'Bearer '+driveAccessToken,'Content-Type':'application/json' }, body }
         );
         const file = await createResponse.json();
         driveFileId = file.id;
     }
 }
 
-// ==================== HANDLE DRIVE CONNECT ====================
 function handleDriveConnect() {
-    if (!DRIVE_CLIENT_ID || DRIVE_CLIENT_ID === '') {
-        showDriveSetupModal();
-        return;
-    }
+    if (!DRIVE_CLIENT_ID || DRIVE_CLIENT_ID === '') { showDriveSetupModal(); return; }
     if (driveAccessToken) {
         // Disconnect
         driveAccessToken = null;
@@ -517,328 +509,91 @@ function handleDriveConnect() {
         hint: 'araheem.consultant@gmail.com',
         callback: async (res) => {
             if (res.error) { showToast('Drive auth failed: ' + res.error, 'error'); return; }
-            
+
             driveAccessToken = res.access_token;
-            localStorage.setItem('driveAccessToken', driveAccessToken); // persist token
+            localStorage.setItem('driveAccessToken', driveAccessToken);
 
             const db = getDB();
             driveFileId = db.driveFileId || null;
             updateDriveUI(true);
             showToast('✓ Connected to Google Drive!', 'success');
-
-            await syncToDrive(db); // fetch latest data immediately
+            await syncToDrive(db);
         }
     });
     tokenClient.requestAccessToken();
 }
 
-// ==================== LOAD DATA ON PAGE OPEN ====================
-window.addEventListener('load', () => {
-    loadDataFromDrive();
-});
-
-// ==================== ADD NEW ENTRY FUNCTION ====================
-function addNewEntry(entry) {
-    dataArray.push(entry); // Replace with your actual data array
-    populateUIWithData(dataArray); // Update your UI
-    saveDataToDrive(dataArray); // Save to Drive so all devices sync
+function syncToDrive(db) {
+    if (!driveAccessToken) return;
+    saveDataToDrive(db);
 }
 
-// ==================== DELETE ENTRY FUNCTION ====================
-function deleteEntry(index) {
-    dataArray.splice(index, 1); // Remove entry from array
-    populateUIWithData(dataArray); // Update UI
-    saveDataToDrive(dataArray); // Save to Drive to sync deletion
-}
-
-// ==================== STATE ====================
-const DB_KEY = 'ca_practice_db';
-
-function getDB() {
-  const raw = localStorage.getItem(DB_KEY);
-  if (!raw) return initDB();
-  try { return JSON.parse(raw); } catch(e) { return initDB(); }
-}
-
-function saveDB(db) {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-  scheduleDriveSync(db);
-}
-
-let syncTimer = null;
-function scheduleDriveSync(db) {
-  if (!driveAccessToken) return; // Only sync if Drive is actually connected
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(() => syncToDrive(db), 1500);
-}
-
-function initDB() {
-    const db = {
-        clients: [], fbr: [], secp: [], tasks: [], billing: [],
-        documents: [], leads: [],
-        users: [{id:'u1', name:'A. Raheem', email:'araheem.consultant@gmail.com', role:'admin', initials:'AR', active:true, created:new Date().toISOString()}],
-        audit: [], currentUser: {id:'u1', name:'A. Raheem', role:'admin', initials:'AR'},
-        driveFileId: null
-    };
-    saveDB(db);
-    return db;
-}
-
-function nextMonthDate(offset=0) {
-  const d=new Date(); d.setDate(25); d.setMonth(d.getMonth()+offset);
-  return d.toISOString().split('T')[0];
-}
-function uid() { return Math.random().toString(36).substr(2,9)+Date.now().toString(36); }
-
-function logAudit(action, module='General') {
-  const db=getDB();
-  db.audit.unshift({id:uid(), action, user:db.currentUser.name, time:new Date().toISOString(), module});
-  if(db.audit.length>200) db.audit=db.audit.slice(0,200);
-  saveDB(db);
-}
-
-// ==================== TOAST ====================
+// ==================== TOASTS / UI ====================
 function showToast(msg, type='info', dur=3000) {
-  const c = document.getElementById('toast-container');
-  const t = document.createElement('div');
-  t.className = 'toast '+type;
-  t.textContent = msg;
-  c.appendChild(t);
-  requestAnimationFrame(()=>{ t.classList.add('show'); });
-  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(), 300); }, dur);
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast '+type;
+    t.textContent = msg;
+    c.appendChild(t);
+    requestAnimationFrame(()=>{ t.classList.add('show'); });
+    setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, dur);
 }
 
-// ==================== NAVIGATION ====================
+// ==================== DASHBOARD / NAVIGATION ====================
 let currentPage = 'dashboard';
 function navigate(page) {
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-  const navEl = document.getElementById('nav-'+page);
-  if(navEl) navEl.classList.add('active');
-  currentPage = page;
-  const titles = {dashboard:'Dashboard',clients:'Clients',tasks:'Tasks',calendar:'Calendar',fbr:'FBR Module',secp:'SECP Module',billing:'Billing & Income',documents:'Documents',users:'Users',audit:'Audit Log',leads:'Potential Clients'};
-  document.getElementById('topbar-title').textContent = titles[page]||page;
-  const content = document.getElementById('page-content');
-  content.className = 'page fade-in';
-  void content.offsetWidth;
-  content.className = 'page fade-in';
-  const pages = {dashboard:renderDashboard,clients:renderClients,tasks:renderTasks,calendar:renderCalendar,fbr:renderFBR,secp:renderSECP,billing:renderBilling,documents:renderDocuments,users:renderUsers,audit:renderAudit,leads:renderLeads};
-  const actions = {clients:renderClientsActions,tasks:renderTasksActions,fbr:renderFBRActions,secp:renderSECPActions,billing:renderBillingActions,documents:renderDocumentsActions,users:renderUsersActions,leads:renderLeadsActions};
-  document.getElementById('topbar-actions').innerHTML='';
-  if(actions[page]) actions[page]();
-  if(pages[page]) pages[page]();
-  closeSidebar();
-  updateBadges();
+    document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+    const navEl = document.getElementById('nav-'+page);
+    if(navEl) navEl.classList.add('active');
+    currentPage = page;
+    const titles = {dashboard:'Dashboard',clients:'Clients',tasks:'Tasks',calendar:'Calendar',fbr:'FBR Module',secp:'SECP Module',billing:'Billing & Income',documents:'Documents',users:'Users',audit:'Audit Log',leads:'Potential Clients'};
+    document.getElementById('topbar-title').textContent = titles[page]||page;
+    const pages = {dashboard:renderDashboard,clients:renderClients,tasks:renderTasks,calendar:renderCalendar,fbr:renderFBR,secp:renderSECP,billing:renderBilling,documents:renderDocuments,users:renderUsers,audit:renderAudit,leads:renderLeads};
+    const actions = {clients:renderClientsActions,tasks:renderTasksActions,fbr:renderFBRActions,secp:renderSECPActions,billing:renderBillingActions,documents:renderDocumentsActions,users:renderUsersActions,leads:renderLeadsActions};
+    document.getElementById('topbar-actions').innerHTML='';
+    if(actions[page]) actions[page]();
+    if(pages[page]) pages[page]();
+    closeSidebar();
+    updateBadges();
 }
-function toggleSidebar() {
-  const sb=document.getElementById('sidebar'),bd=document.getElementById('sidebar-backdrop');
-  sb.classList.toggle('open'); bd.classList.toggle('visible');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-backdrop').classList.remove('visible');
-}
+
+// ==================== BADGES ====================
 function updateBadges() {
-  const db=getDB();
-  const pending=db.tasks.filter(t=>t.status!=='Completed').length;
-  const badge=document.getElementById('tasks-badge');
-  if(badge){badge.textContent=pending;badge.style.display=pending>0?'':'none';}
-  const hotLeads=(db.leads||[]).filter(l=>l.status==='hot').length;
-  const lb=document.getElementById('leads-badge');
-  if(lb){lb.textContent=hotLeads;lb.style.display=hotLeads>0?'':'none';}
+    const db=getDB();
+    const pending=db.tasks.filter(t=>t.status!=='Completed').length;
+    const badge=document.getElementById('tasks-badge');
+    if(badge){badge.textContent=pending;badge.style.display=pending>0?'':'none';}
+    const hotLeads=(db.leads||[]).filter(l=>l.status==='hot').length;
+    const lb=document.getElementById('leads-badge');
+    if(lb){lb.textContent=hotLeads;lb.style.display=hotLeads>0?'':'none';}
 }
 
-// ==================== HELPERS ====================
-function fmt(date) {
-  if(!date) return '—';
-  return new Date(date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-}
-function fmtPKR(n) { return 'PKR '+Number(n||0).toLocaleString(); }
-function daysLeft(date) {
-  if(!date) return null;
-  return Math.ceil((new Date(date)-new Date())/86400000);
-}
-function getClientName(db,id) {
-  const c=db.clients.find(c=>c.id===id);
-  return c?(c.business||c.name):'Unknown';
-}
-function priorityBadge(p) {
-  const map={High:'red',Medium:'yellow',Low:'green'};
-  return `<span class="badge badge-${map[p]||'gray'}"><span class="dot"></span>${p}</span>`;
-}
-function statusBadge(s) {
-  const map={Active:'green',Inactive:'gray',Pending:'yellow','In Progress':'blue',Completed:'green',Filed:'green',Overdue:'red',Received:'green'};
-  return `<span class="badge badge-${map[s]||'gray'}">${s}</span>`;
-}
-function dueIndicator(date) {
-  if(!date) return '';
-  const d=daysLeft(date);
-  if(d<0) return `<span class="badge badge-red">Overdue ${Math.abs(d)}d</span>`;
-  if(d<=3) return `<span class="badge badge-red">${d}d left</span>`;
-  if(d<=7) return `<span class="badge badge-yellow">${d}d left</span>`;
-  return `<span class="badge badge-gray">${d}d</span>`;
-}
-function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toggleSidebar() { const sb=document.getElementById('sidebar'),bd=document.getElementById('sidebar-backdrop'); sb.classList.toggle('open'); bd.classList.toggle('visible'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-backdrop').classList.remove('visible'); }
 
-// ==================== MODAL ====================
-function showModal(html) {
-  const mc=document.getElementById('modal-container');
-  mc.innerHTML=`<div class="overlay" onclick="closeModal(event)">${html}</div>`;
-  document.body.style.overflow='hidden';
-}
-function closeModal(e) {
-  if(e&&e.target!==e.currentTarget) return;
-  document.getElementById('modal-container').innerHTML='';
-  document.body.style.overflow='';
-}
-function closeModalForce() {
-  document.getElementById('modal-container').innerHTML='';
-  document.body.style.overflow='';
-}
-function confirmDelete(msg,cb) {
-  showModal(`<div class="modal confirm-modal" onclick="event.stopPropagation()">
-    <div class="modal-header"><span class="modal-title">Confirm Delete</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
-    <div class="modal-body"><p style="color:var(--text2);font-size:14px;">${msg}</p></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button>
-      <button class="btn btn-danger" onclick="closeModalForce();(${cb})()">Delete</button>
-    </div>
-  </div>`);
+// ==================== UI HELPERS ====================
+function fmt(date){if(!date)return '—';return new Date(date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtPKR(n){return 'PKR '+Number(n||0).toLocaleString();}
+function daysLeft(date){if(!date)return null;return Math.ceil((new Date(date)-new Date())/86400000);}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ==================== MODALS ====================
+function showModal(html){const mc=document.getElementById('modal-container'); mc.innerHTML=`<div class="overlay" onclick="closeModal(event)">${html}</div>`; document.body.style.overflow='hidden';}
+function closeModal(e){if(e&&e.target!==e.currentTarget) return; document.getElementById('modal-container').innerHTML=''; document.body.style.overflow='';}
+function closeModalForce(){document.getElementById('modal-container').innerHTML=''; document.body.style.overflow='';}
+
+// ==================== AUTO-RECONNECT DRIVE TOKEN ====================
+const storedDriveToken = localStorage.getItem('driveAccessToken');
+if(storedDriveToken){
+    driveAccessToken = storedDriveToken;
+    const db = getDB();
+    driveFileId = db.driveFileId || null;
+    updateDriveUI(true);
+    syncToDrive(db);
 }
 
-// ==================== DATA BACKUP & IMPORT ====================
-
-// Export full backup as JSON file (works offline, no OAuth needed)
-function exportDataBackup() {
-  const db = getDB();
-  const json = JSON.stringify(db, null, 2);
-  const blob = new Blob([json], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'client-portal-backup-' + new Date().toISOString().split('T')[0] + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Backup downloaded successfully', 'success');
-  logAudit('Exported full data backup', 'System');
-}
-
-// Import data from a backup JSON file (from old version or another device)
-function openImportModal() {
-  showModal(`<div class="modal modal-lg" onclick="event.stopPropagation()" style="max-width:600px;">
-    <div class="modal-header">
-      <span class="modal-title">⬆ Import Data from Old Version</span>
-      <span class="close-btn" onclick="closeModalForce()">×</span>
-    </div>
-    <div class="modal-body">
-      <div class="alert alert-blue" style="margin-bottom:16px;">
-        <div>
-          <strong>Migrating from your old Client Tracker?</strong><br>
-          <span style="font-size:12px;line-height:1.8;">
-            Step 1: Open your <strong>old file</strong> in the browser.<br>
-            Step 2: Press <strong>F12</strong> → Console tab → paste and run:<br>
-            <code style="background:var(--bg3);padding:4px 8px;border-radius:4px;display:block;margin:6px 0;font-size:11px;font-family:var(--mono);">copy(localStorage.getItem('ca_practice_db'))</code>
-            Step 3: Come back here → click "Paste from Clipboard" below, OR use the file method.
-          </span>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-        <div class="card" style="flex:1;min-width:200px;cursor:pointer;border:1.5px dashed var(--border2);" onclick="document.getElementById('import-file-input').click()">
-          <div style="text-align:center;padding:12px 0;">
-            <div style="font-size:28px;margin-bottom:6px;">📂</div>
-            <div style="font-size:13px;font-weight:500;">Upload Backup File</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:3px;">Select a .json backup file</div>
-          </div>
-          <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="readImportFile(this)">
-        </div>
-        <div class="card" style="flex:1;min-width:200px;cursor:pointer;border:1.5px dashed var(--border2);" onclick="pasteImportData()">
-          <div style="text-align:center;padding:12px 0;">
-            <div style="font-size:28px;margin-bottom:6px;">📋</div>
-            <div style="font-size:13px;font-weight:500;">Paste from Clipboard</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:3px;">After copying from console</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:12px;">
-        <label class="form-label">Or paste JSON data directly:</label>
-        <textarea class="form-input" id="import-json-area" placeholder='Paste your backup JSON here...' style="min-height:120px;font-family:var(--mono);font-size:11px;"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Import mode</label>
-        <select class="form-input" id="import-mode">
-          <option value="merge">Merge — keep existing data + add imported (recommended)</option>
-          <option value="replace">Replace all — overwrite everything with imported data</option>
-        </select>
-      </div>
-
-      <div id="import-preview" style="display:none;" class="alert alert-green"></div>
-      <div id="import-error" style="display:none;" class="alert alert-red"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button>
-      <button class="btn btn-secondary" onclick="validateImport()">Preview</button>
-      <button class="btn btn-primary" onclick="doImport()">Import Now</button>
-    </div>
-  </div>`);
-}
-
-function readImportFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    document.getElementById('import-json-area').value = e.target.result;
-    validateImport();
-  };
-  reader.readAsText(file);
-}
-
-async function pasteImportData() {
-  try {
-    const text = await navigator.clipboard.readText();
-    if (text) {
-      document.getElementById('import-json-area').value = text;
-      validateImport();
-      showToast('Data pasted from clipboard', 'success');
-    }
-  } catch(e) {
-    showToast('Could not read clipboard — please paste manually into the text area', 'info');
-    document.getElementById('import-json-area').focus();
-  }
-}
-
-function validateImport() {
-  const raw = document.getElementById('import-json-area').value.trim();
-  const preview = document.getElementById('import-preview');
-  const err = document.getElementById('import-error');
-  preview.style.display = 'none';
-  err.style.display = 'none';
-  if (!raw) { showToast('No data to validate', 'error'); return; }
-  try {
-    const data = JSON.parse(raw);
-    const clients = (data.clients||[]).length;
-    const tasks = (data.tasks||[]).length;
-    const billing = (data.billing||[]).length;
-    const fbr = (data.fbr||[]).length;
-    const secp = (data.secp||[]).length;
-    const leads = (data.leads||[]).length;
-    preview.style.display = 'flex';
-    preview.innerHTML = `✅ Valid backup detected:<br>
-      <strong>${clients}</strong> clients &nbsp;·&nbsp;
-      <strong>${tasks}</strong> tasks &nbsp;·&nbsp;
-      <strong>${billing}</strong> billing records &nbsp;·&nbsp;
-      <strong>${fbr}</strong> FBR records &nbsp;·&nbsp;
-      <strong>${secp}</strong> SECP records &nbsp;·&nbsp;
-      <strong>${leads}</strong> leads`;
-    return data;
-  } catch(e) {
-    err.style.display = 'flex';
-    err.innerHTML = '❌ Invalid JSON — make sure you copied the complete data from console.';
-    return null;
-  }
-}
+// ==================== LOAD DATA ON PAGE OPEN ====================
+window.addEventListener('load',()=>{ loadDataFromDrive(); });
 
 function doImport() {
   const raw = document.getElementById('import-json-area').value.trim();
