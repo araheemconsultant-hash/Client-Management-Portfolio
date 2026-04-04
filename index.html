@@ -412,6 +412,78 @@ let driveAccessToken = null;
 let driveFileId = null;
 let isSyncing = false;
 
+
+
+// ==================== Load latest data from Google Drive ====================
+async function loadDataFromDrive() {
+    if (!driveAccessToken) return;
+
+    const searchResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FILE_NAME}'&fields=files(id,name)`, {
+        headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+    });
+    const files = await searchResponse.json();
+
+    if (files.files && files.files.length > 0) {
+        driveFileId = files.files[0].id;
+
+        const fileResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
+            headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+        });
+        const data = await fileResponse.json();
+
+        populateUIWithData(data); // <-- Replace with your function that updates the table/UI
+    } else {
+        driveFileId = null;
+        populateUIWithData([]); // empty data if file doesn't exist yet
+    }
+}
+
+
+// ==================== Save data to Google Drive ====================
+async function saveDataToDrive(data) {
+    if (!driveAccessToken) return;
+
+    const body = JSON.stringify(data);
+
+    if (driveFileId) {
+        // Update existing file
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': 'Bearer ' + driveAccessToken,
+                'Content-Type': 'application/json'
+            },
+            body
+        });
+    } else {
+        // Create new file if it doesn't exist
+        const createResponse = await fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=media`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + driveAccessToken,
+                'Content-Type': 'application/json'
+            },
+            body
+        });
+        const file = await createResponse.json();
+        driveFileId = file.id;
+    }
+}
+
+
+// Load data on page load
+window.addEventListener('load', () => {
+    loadDataFromDrive();
+});
+
+
+// Example: when adding a new client/task
+function addNewEntry(entry) {
+    dataArray.push(entry); // replace with your array variable
+    populateUIWithData(dataArray); // update the UI
+    saveDataToDrive(dataArray); // save to Drive
+}
+
 // ==================== STATE ====================
 const DB_KEY = 'ca_practice_db';
 
