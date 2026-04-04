@@ -400,6 +400,16 @@
 <div id="modal-container"></div>
 
 <script>
+// Auto-reconnect if we have a stored Drive token
+const storedDriveToken = localStorage.getItem('driveAccessToken');
+if (storedDriveToken) {
+    driveAccessToken = storedDriveToken;
+    const db = getDB();
+    driveFileId = db.driveFileId || null;
+    updateDriveUI(true);
+    syncToDrive(db); // fetch latest Drive data immediately
+}
+
 // ==================== DRIVE / BACKUP CONFIG ====================
 const DRIVE_CLIENT_ID = '280139619063-g30b20hjjngmg4v7ht7159jqdali7fec.apps.googleusercontent.com'; // Your Client ID
 const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
@@ -513,47 +523,25 @@ function scheduleDriveSync(db) {
 
 function initDB() {
   const db = {
-    clients: [], fbr: [], secp: [], tasks: [], billing: [],
-    documents: [], leads: [],
+    clients: [], 
+    fbr: [], 
+    secp: [], 
+    tasks: [], 
+    billing: [],
+    documents: [], 
+    leads: [],
     users: [{id:'u1', name:'A. Raheem', email:'araheem.consultant@gmail.com', role:'admin', initials:'AR', active:true, created:new Date().toISOString()}],
     audit: [],
     currentUser: {id:'u1', name:'A. Raheem', role:'admin', initials:'AR'},
     driveFileId: null
   };
-  const cid1=uid(), cid2=uid(), cid3=uid();
-  db.clients = [
-    {id:cid1, name:'Muhammad Ali Khan', business:'Khan Traders (Pvt) Ltd', cnic:'35202-1234567-1', ntn:'1234567-8', contact:'+92 300 1234567', email:'ali@khantraders.pk', type:'Company', status:'Active', engagementStart:'2022-01-15', fee:150000, notes:'Annual audit client'},
-    {id:cid2, name:'Fatima Enterprises', business:'Fatima Enterprises', cnic:'35202-9876543-2', ntn:'9876543-2', contact:'+92 321 9876543', email:'fatima@fe.pk', type:'AOP', status:'Active', engagementStart:'2023-03-01', fee:85000, notes:'Monthly sales tax + annual returns'},
-    {id:cid3, name:'Babar Azam', business:'', cnic:'42301-5551234-3', ntn:'5551234-3', contact:'+92 333 5551234', email:'babar@email.pk', type:'Individual', status:'Active', engagementStart:'2024-01-01', fee:40000, notes:'Salaried individual'}
-  ];
-  const tid1=uid(),tid2=uid(),tid3=uid(),tid4=uid();
-  db.tasks = [
-    {id:tid1, title:'Annual Income Tax Return - Khan Traders', clientId:cid1, dueDate:'2025-09-30', priority:'High', status:'Pending', category:'FBR', billable:true, billAmount:150000, notes:'FY 2024-25', created:new Date().toISOString()},
-    {id:tid2, title:'Monthly Sales Tax Return (Jul)', clientId:cid2, dueDate:nextMonthDate(0), priority:'High', status:'In Progress', category:'FBR', billable:true, billAmount:7000, notes:'STRN Filing', created:new Date().toISOString()},
-    {id:tid3, title:'SECP Annual Return Form-A', clientId:cid1, dueDate:nextMonthDate(1), priority:'Medium', status:'Pending', category:'SECP', billable:false, billAmount:0, notes:'For FY 2024', created:new Date().toISOString()},
-    {id:tid4, title:'ATL Verification', clientId:cid3, dueDate:nextMonthDate(-1), priority:'Low', status:'Completed', category:'FBR', billable:false, billAmount:0, notes:'', created:new Date().toISOString()}
-  ];
-  db.fbr = [
-    {id:uid(), clientId:cid1, ntn:'1234567-8', ntnStatus:'Active', atlStatus:'In ATL', strn:'12-00-1234-001-62', salesTaxActive:true, filingHistory:[{year:'2023-24',type:'Income Tax',status:'Filed',date:'2024-09-28'}]},
-    {id:uid(), clientId:cid2, ntn:'9876543-2', ntnStatus:'Active', atlStatus:'In ATL', strn:'12-00-9876-001-62', salesTaxActive:true, filingHistory:[]},
-    {id:uid(), clientId:cid3, ntn:'5551234-3', ntnStatus:'Active', atlStatus:'Not in ATL', strn:'', salesTaxActive:false, filingHistory:[]}
-  ];
-  db.secp = [{id:uid(), clientId:cid1, companyName:'Khan Traders (Pvt) Ltd', cuin:'0123456', incorporationDate:'2015-06-10', companyType:'Private Limited', directors:[{name:'Muhammad Ali Khan',cnic:'35202-1234567-1',shares:60}], filings:[{form:'Form-A',dueDate:'2025-03-31',status:'Filed',filedDate:'2025-03-15'}]}];
-  db.billing = [
-    {id:uid(), clientId:cid1, taskId:tid1, amount:150000, date:'2025-01-15', description:'Annual Audit & Tax Services FY 2024-25', status:'Received', isTaskLinked:true},
-    {id:uid(), clientId:cid2, taskId:tid2, amount:85000, date:'2025-01-20', description:'Monthly Retainer Jan 2025', status:'Received', isTaskLinked:false},
-    {id:uid(), clientId:cid2, amount:85000, date:'2025-02-20', description:'Monthly Retainer Feb 2025', status:'Pending', isTaskLinked:false},
-    {id:uid(), clientId:cid3, amount:40000, date:'2025-01-10', description:'Income Tax Return FY 2024-25', status:'Received', isTaskLinked:false}
-  ];
-  db.leads = [
-    {id:uid(), name:'Saad Enterprises', contactName:'Ahmed Saad', email:'saad@enterprise.pk', phone:'+92 311 2345678', company:'Saad Enterprises', status:'hot', services:'NTN Registration, Tax Returns', notes:'Interested in full compliance package. Called twice.', created:new Date().toISOString()},
-    {id:uid(), name:'Zara Holdings', contactName:'Zara Malik', email:'zara@zholdings.com', phone:'+92 300 9988776', company:'Zara Holdings', status:'warm', services:'SECP Compliance, Company Registration', notes:'Met at chamber event. Follow up next week.', created:new Date().toISOString()}
-  ];
-  db.audit = [{id:uid(), action:'System Initialized — A. Raheem Consultant', user:'A. Raheem', time:new Date().toISOString(), module:'System'}];
+
+  // remove all demo clients, leads, tasks, billing, fbr, secp
+  // db.clients = []; db.tasks = []; db.fbr = []; db.secp = []; db.billing = []; db.leads = [];
+
   saveDB(db);
   return db;
 }
-
 function nextMonthDate(offset=0) {
   const d=new Date(); d.setDate(25); d.setMonth(d.getMonth()+offset);
   return d.toISOString().split('T')[0];
@@ -875,6 +863,8 @@ function handleDriveConnect() {
     callback: async (res) => {
       if (res.error) { showToast('Drive auth failed: ' + res.error, 'error'); return; }
       driveAccessToken = res.access_token;
+// Store the access token for future auto-login
+localStorage.setItem('driveAccessToken', driveAccessToken);
       const db = getDB();
       driveFileId = db.driveFileId || null;
       updateDriveUI(true);
