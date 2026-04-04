@@ -3,11 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Client Management Portal — A. Raheem Consultant</title>
+<title>A. Raheem Consultant — Client Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer onload="window._gsiReady=true;if(typeof onGoogleScriptLoad==='function'&&!appReady)onGoogleScriptLoad()"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta name="google-site-verification" content="">
+</head>
+<body>
+
+<div class="toast-container" id="toast-container"></div>
+
+<div class="app" id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-icon">AR</div>
+        <div>
+          <div class="logo-text">A. Raheem Consultant</div>
+          <div class="logo-sub">Client Tracker — FBR & SECP</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-section">
+        <div class="nav-label">Main</div>
+        <div class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="navigate('clients')" id="nav-clients">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+          Clients
+        </div>
+        <div class="nav-item" onclick="navigate('tasks')" id="nav-tasks">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+          Tasks
+          <span class="nav-badge" id="tasks-badge" style="display:none">0</span>
+        </div>
+        <div class="nav-item" onclick="navigate('leads')" id="nav-leads">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M11 6a3 3 0 11-6 0 3 3 0 016 0zM14 17a6 6 0 00-12 0h12zM13 8a1 1 0 100 2 1 1 0 000-2zM18 9a1 1 0 11-2 0 1 1 0 012 0zM16 13a4 4 0 00-3.162 1.547A6.01 6.01 0 0119 17h-3v-4z"/></svg>
+          Potential Clients
+          <span class="nav-badge yellow" id="leads-badge" style="display:none">0</span>
+        </div>
+        <div class="nav-item" onclick="navigate('calendar')" id="nav-calendar">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+          Calendar
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">Compliance</div>
+        <div class="nav-item" onclick="navigate('fbr')" id="nav-fbr">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/></svg>
+          FBR Module
+        </div>
+        <div class="nav-item" onclick="navigate('secp')" id="nav-secp">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+          SECP Module
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">Finance</div>
+        <div class="nav-item" onclick="navigate('billing')" id="nav-billing">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+          Billing
+        </div>
+        <div class="nav-item" onclick="navigate('documents')" id="nav-documents">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+          Documents
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">System</div>
+        <div class="nav-item" onclick="navigate('users')" id="nav-users">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/></svg>
+          Users
+        </div>
+        <div class="nav-item" onclick="navigate('audit')" id="nav-audit">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+          Audit Log
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar-text">AR</div>
+        <div>
+          <div class="user-name" id="current-user-name">A. Raheem</div>
+          <div class="user-role" id="current-user-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <div class="main" id="main-content">
+    <!-- Drive Status Bar -->
+    <div class="drive-bar" id="drive-bar">
+      <div class="drive-dot" id="drive-dot"></div>
+      <span class="drive-label" id="drive-label">☁️ Google Drive: Connecting…</span>
+      <button class="btn btn-ghost btn-sm" id="drive-refresh-btn" onclick="refreshFromDrive()" style="font-size:11px;padding:3px 8px;display:none;" title="Pull latest data from Drive">↻ Refresh</button>
+      <button class="btn btn-secondary btn-sm" id="drive-btn" onclick="handleDriveConnect()" style="font-size:11px;padding:4px 10px;">Connecting…</button>
+    </div>
+
+    <div class="topbar">
+      <div class="menu-btn" onclick="toggleSidebar()">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+
+    <div class="page" id="page-content"></div>
+  </div>
+</div>
+
+<!-- MODAL CONTAINER -->
+<div id="modal-container"></div>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -288,6 +408,7 @@
   .toast.error{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red);}
   .toast.info{border-color:rgba(79,142,247,.3);background:var(--accentglow);color:var(--accent);}
 </style>
+</head>
 <body>
 
 <div class="app" id="app">
@@ -297,8 +418,8 @@
       <div class="logo-mark">
         <div class="logo-icon">CA</div>
         <div>
-          <div class="logo-text">Client Management Portal</div>
-          <div class="logo-sub">A. Raheem Consultant</div>
+          <div class="logo-text">Practice Manager</div>
+          <div class="logo-sub">FBR & SECP Compliance</div>
         </div>
       </div>
     </div>
@@ -377,13 +498,6 @@
 
   <!-- MAIN -->
   <div class="main" id="main-content">
-  <div class="drive-bar" id="drive-bar">
-      <div class="drive-dot" id="drive-dot"></div>
-      <span class="drive-label" id="drive-label">💾 Local save: Active &nbsp;|&nbsp; Google Drive: <span id="drive-status-text">Not connected — <a href="#" onclick="showDriveSetupModal();return false;" style="color:var(--accent);">Setup Guide</a></span></span>
-      <button class="btn btn-secondary btn-sm" id="drive-btn" onclick="exportDataBackup()" style="font-size:11px;padding:4px 10px;" title="Download full data backup as JSON">⬇ Backup</button>
-      <button class="btn btn-secondary btn-sm" onclick="openImportModal()" style="font-size:11px;padding:4px 10px;" title="Import data from old version">⬆ Import</button>
-      <button class="btn btn-secondary btn-sm" onclick="handleDriveConnect()" style="font-size:11px;padding:4px 10px;" title="Connect Google Drive for cloud sync">☁ Drive</button>
-    </div>
     <div class="topbar">
       <div class="menu-btn" onclick="toggleSidebar()">
         <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
@@ -400,25 +514,25 @@
 <div id="modal-container"></div>
 
 <script>
-// ==================== DRIVE / BACKUP CONFIG ====================
-// Google Drive OAuth requires a Google Cloud project with your Client ID.
-// The Error 400 you saw means the Client ID was invalid/missing.
-// To enable real Drive sync: get your Client ID from console.cloud.google.com
-// and paste it below, then uncomment the GSI script in <head>.
-const DRIVE_CLIENT_ID = '280139619063-g30b20hjjngmg4v7ht7159jqdali7fec.apps.googleusercontent.com'; // Paste your OAuth 2.0 Client ID here when ready
-const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive';
-const DRIVE_FILE_NAME = 'client-management-portal-data.json';
+// ==================== GOOGLE DRIVE CONFIG ====================
+// Your OAuth 2.0 Client ID from "Client Tracker" project
+const DRIVE_CLIENT_ID = '280139619063-g30b20hjjngmg4v7ht7159jqdali7fec.apps.googleusercontent.com';
+const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_FILE_NAME = 'client-tracker-data.json';
+
 let driveAccessToken = null;
-let driveFileId = null;
+let driveFileId = localStorage.getItem('ct_drive_file_id') || null;
 let isSyncing = false;
+let tokenClient = null;
+let appReady = false;
 
 // ==================== STATE ====================
 const DB_KEY = 'ca_practice_db';
 
 function getDB() {
   const raw = localStorage.getItem(DB_KEY);
-  if (!raw) return initDB();
-  try { return JSON.parse(raw); } catch(e) { return initDB(); }
+  if (!raw) return freshDB();
+  try { return JSON.parse(raw); } catch(e) { return freshDB(); }
 }
 
 function saveDB(db) {
@@ -428,65 +542,251 @@ function saveDB(db) {
 
 let syncTimer = null;
 function scheduleDriveSync(db) {
-  if (!driveAccessToken) return; // Only sync if Drive is actually connected
   clearTimeout(syncTimer);
-  syncTimer = setTimeout(() => syncToDrive(db), 1500);
+  syncTimer = setTimeout(() => syncToDrive(db), 2000);
 }
 
-function initDB() {
+// Fresh empty DB — no demo data
+function freshDB() {
   const db = {
     clients: [], fbr: [], secp: [], tasks: [], billing: [],
     documents: [], leads: [],
     users: [{id:'u1', name:'A. Raheem', email:'araheem.consultant@gmail.com', role:'admin', initials:'AR', active:true, created:new Date().toISOString()}],
-    audit: [],
+    audit: [{id:uid(), action:'Portal initialized — A. Raheem Consultant', user:'A. Raheem', time:new Date().toISOString(), module:'System'}],
     currentUser: {id:'u1', name:'A. Raheem', role:'admin', initials:'AR'},
     driveFileId: null
   };
-  const cid1=uid(), cid2=uid(), cid3=uid();
-  db.clients = [
-    {id:cid1, name:'Muhammad Ali Khan', business:'Khan Traders (Pvt) Ltd', cnic:'35202-1234567-1', ntn:'1234567-8', contact:'+92 300 1234567', email:'ali@khantraders.pk', type:'Company', status:'Active', engagementStart:'2022-01-15', fee:150000, notes:'Annual audit client'},
-    {id:cid2, name:'Fatima Enterprises', business:'Fatima Enterprises', cnic:'35202-9876543-2', ntn:'9876543-2', contact:'+92 321 9876543', email:'fatima@fe.pk', type:'AOP', status:'Active', engagementStart:'2023-03-01', fee:85000, notes:'Monthly sales tax + annual returns'},
-    {id:cid3, name:'Babar Azam', business:'', cnic:'42301-5551234-3', ntn:'5551234-3', contact:'+92 333 5551234', email:'babar@email.pk', type:'Individual', status:'Active', engagementStart:'2024-01-01', fee:40000, notes:'Salaried individual'}
-  ];
-  const tid1=uid(),tid2=uid(),tid3=uid(),tid4=uid();
-  db.tasks = [
-    {id:tid1, title:'Annual Income Tax Return - Khan Traders', clientId:cid1, dueDate:'2025-09-30', priority:'High', status:'Pending', category:'FBR', billable:true, billAmount:150000, notes:'FY 2024-25', created:new Date().toISOString()},
-    {id:tid2, title:'Monthly Sales Tax Return (Jul)', clientId:cid2, dueDate:nextMonthDate(0), priority:'High', status:'In Progress', category:'FBR', billable:true, billAmount:7000, notes:'STRN Filing', created:new Date().toISOString()},
-    {id:tid3, title:'SECP Annual Return Form-A', clientId:cid1, dueDate:nextMonthDate(1), priority:'Medium', status:'Pending', category:'SECP', billable:false, billAmount:0, notes:'For FY 2024', created:new Date().toISOString()},
-    {id:tid4, title:'ATL Verification', clientId:cid3, dueDate:nextMonthDate(-1), priority:'Low', status:'Completed', category:'FBR', billable:false, billAmount:0, notes:'', created:new Date().toISOString()}
-  ];
-  db.fbr = [
-    {id:uid(), clientId:cid1, ntn:'1234567-8', ntnStatus:'Active', atlStatus:'In ATL', strn:'12-00-1234-001-62', salesTaxActive:true, filingHistory:[{year:'2023-24',type:'Income Tax',status:'Filed',date:'2024-09-28'}]},
-    {id:uid(), clientId:cid2, ntn:'9876543-2', ntnStatus:'Active', atlStatus:'In ATL', strn:'12-00-9876-001-62', salesTaxActive:true, filingHistory:[]},
-    {id:uid(), clientId:cid3, ntn:'5551234-3', ntnStatus:'Active', atlStatus:'Not in ATL', strn:'', salesTaxActive:false, filingHistory:[]}
-  ];
-  db.secp = [{id:uid(), clientId:cid1, companyName:'Khan Traders (Pvt) Ltd', cuin:'0123456', incorporationDate:'2015-06-10', companyType:'Private Limited', directors:[{name:'Muhammad Ali Khan',cnic:'35202-1234567-1',shares:60}], filings:[{form:'Form-A',dueDate:'2025-03-31',status:'Filed',filedDate:'2025-03-15'}]}];
-  db.billing = [
-    {id:uid(), clientId:cid1, taskId:tid1, amount:150000, date:'2025-01-15', description:'Annual Audit & Tax Services FY 2024-25', status:'Received', isTaskLinked:true},
-    {id:uid(), clientId:cid2, taskId:tid2, amount:85000, date:'2025-01-20', description:'Monthly Retainer Jan 2025', status:'Received', isTaskLinked:false},
-    {id:uid(), clientId:cid2, amount:85000, date:'2025-02-20', description:'Monthly Retainer Feb 2025', status:'Pending', isTaskLinked:false},
-    {id:uid(), clientId:cid3, amount:40000, date:'2025-01-10', description:'Income Tax Return FY 2024-25', status:'Received', isTaskLinked:false}
-  ];
-  db.leads = [
-    {id:uid(), name:'Saad Enterprises', contactName:'Ahmed Saad', email:'saad@enterprise.pk', phone:'+92 311 2345678', company:'Saad Enterprises', status:'hot', services:'NTN Registration, Tax Returns', notes:'Interested in full compliance package. Called twice.', created:new Date().toISOString()},
-    {id:uid(), name:'Zara Holdings', contactName:'Zara Malik', email:'zara@zholdings.com', phone:'+92 300 9988776', company:'Zara Holdings', status:'warm', services:'SECP Compliance, Company Registration', notes:'Met at chamber event. Follow up next week.', created:new Date().toISOString()}
-  ];
-  db.audit = [{id:uid(), action:'System Initialized — A. Raheem Consultant', user:'A. Raheem', time:new Date().toISOString(), module:'System'}];
-  saveDB(db);
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
   return db;
 }
 
-function nextMonthDate(offset=0) {
-  const d=new Date(); d.setDate(25); d.setMonth(d.getMonth()+offset);
-  return d.toISOString().split('T')[0];
-}
 function uid() { return Math.random().toString(36).substr(2,9)+Date.now().toString(36); }
 
 function logAudit(action, module='General') {
   const db=getDB();
-  db.audit.unshift({id:uid(), action, user:db.currentUser.name, time:new Date().toISOString(), module});
+  db.audit.unshift({id:uid(), action, user:db.currentUser?.name||'A. Raheem', time:new Date().toISOString(), module});
   if(db.audit.length>200) db.audit=db.audit.slice(0,200);
   saveDB(db);
+}
+
+// ==================== LOADING SCREEN ====================
+function showLoadingScreen(msg) {
+  let el = document.getElementById('loading-screen');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-screen';
+    el.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+    el.innerHTML = `
+      <div style="width:48px;height:48px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;">AR</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text);">A. Raheem Consultant</div>
+      <div class="spinner"></div>
+      <div id="loading-msg" style="font-size:13px;color:var(--text3);">${msg}</div>`;
+    document.body.appendChild(el);
+  } else {
+    document.getElementById('loading-msg').textContent = msg;
+  }
+}
+function hideLoadingScreen() {
+  const el = document.getElementById('loading-screen');
+  if (el) { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(), 300); }
+}
+
+// ==================== GOOGLE DRIVE — AUTO CONNECT + SYNC ====================
+// Called once Google GSI script finishes loading
+function onGoogleScriptLoad() {
+  try {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: DRIVE_CLIENT_ID,
+      scope: DRIVE_SCOPES,
+      login_hint: 'araheem.consultant@gmail.com',
+      callback: handleTokenResponse
+    });
+    // Auto-request token silently (no popup on first load)
+    // We use prompt:'' to try to get token without user interaction if already authorized
+    tokenClient.requestAccessToken({ prompt: '' });
+  } catch(e) {
+    console.warn('GSI init error:', e);
+    bootApp(false);
+  }
+}
+
+async function handleTokenResponse(res) {
+  if (res.error) {
+    // If silent auth failed (user not previously authorized), show connect button
+    bootApp(false);
+    return;
+  }
+  driveAccessToken = res.access_token;
+  updateDriveUI(true);
+  // Try to load data from Drive
+  showLoadingScreen('Loading your data from Google Drive…');
+  try {
+    const data = await loadFromDrive();
+    if (data) {
+      // Drive is the source of truth — merge into localStorage
+      localStorage.setItem(DB_KEY, JSON.stringify(data));
+      if (data.driveFileId) {
+        driveFileId = data.driveFileId;
+        localStorage.setItem('ct_drive_file_id', driveFileId);
+      }
+      showToast('✓ Data loaded from Google Drive', 'success');
+    }
+  } catch(e) {
+    console.warn('Drive load error:', e);
+    showToast('Could not load from Drive — using local data', 'info');
+  }
+  bootApp(true);
+}
+
+async function loadFromDrive() {
+  // Find the file by name if we don't have its ID
+  if (!driveFileId) {
+    const searchRes = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FILE_NAME}'+and+trashed=false&fields=files(id,name,modifiedTime)&orderBy=modifiedTime desc`,
+      { headers: { Authorization: `Bearer ${driveAccessToken}` } }
+    );
+    const searchData = await searchRes.json();
+    if (searchData.files && searchData.files.length > 0) {
+      driveFileId = searchData.files[0].id;
+      localStorage.setItem('ct_drive_file_id', driveFileId);
+    }
+  }
+  if (!driveFileId) return null; // No file yet — first time use
+
+  const fileRes = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`,
+    { headers: { Authorization: `Bearer ${driveAccessToken}` } }
+  );
+  if (!fileRes.ok) { driveFileId = null; localStorage.removeItem('ct_drive_file_id'); return null; }
+  const data = await fileRes.json();
+  data.driveFileId = driveFileId;
+  return data;
+}
+
+async function syncToDrive(db) {
+  if (!driveAccessToken) return;
+  if (isSyncing) return;
+  isSyncing = true;
+  setSyncing(true);
+  try {
+    db.driveFileId = driveFileId;
+    const json = JSON.stringify(db, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+
+    if (driveFileId) {
+      // Update existing file
+      const res = await fetch(
+        `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
+        { method: 'PATCH', headers: { Authorization: `Bearer ${driveAccessToken}`, 'Content-Type': 'application/json' }, body: blob }
+      );
+      if (!res.ok) throw new Error('Upload failed');
+    } else {
+      // Create new file
+      const meta = new Blob([JSON.stringify({ name: DRIVE_FILE_NAME })], { type: 'application/json' });
+      const form = new FormData();
+      form.append('metadata', meta);
+      form.append('file', blob);
+      const res = await fetch(
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+        { method: 'POST', headers: { Authorization: `Bearer ${driveAccessToken}` }, body: form }
+      );
+      const created = await res.json();
+      driveFileId = created.id;
+      localStorage.setItem('ct_drive_file_id', driveFileId);
+      db.driveFileId = driveFileId;
+      localStorage.setItem(DB_KEY, JSON.stringify(db));
+    }
+    setSyncing(false);
+  } catch(e) {
+    setSyncing(false);
+    console.warn('Drive sync error:', e);
+    // Token may have expired — try silent refresh
+    if (tokenClient) tokenClient.requestAccessToken({ prompt: '' });
+  }
+  isSyncing = false;
+}
+
+function handleDriveConnect() {
+  if (driveAccessToken) {
+    // Disconnect
+    google.accounts.oauth2.revoke(driveAccessToken, () => {});
+    driveAccessToken = null;
+    updateDriveUI(false);
+    showToast('Disconnected from Google Drive', 'info');
+    return;
+  }
+  if (!tokenClient) { showToast('Google API not ready. Refresh the page.', 'error'); return; }
+  tokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+// Called on every page open — pull latest from Drive to sync changes from other devices
+async function refreshFromDrive() {
+  if (!driveAccessToken) return;
+  try {
+    const remoteData = await loadFromDrive();
+    if (!remoteData) return;
+    const localRaw = localStorage.getItem(DB_KEY);
+    const localData = localRaw ? JSON.parse(localRaw) : null;
+    // Use the one with more recent audit entry
+    const remoteTime = remoteData.audit?.[0]?.time || '0';
+    const localTime = localData?.audit?.[0]?.time || '0';
+    if (remoteTime > localTime) {
+      localStorage.setItem(DB_KEY, JSON.stringify(remoteData));
+      if (appReady) {
+        const cu = remoteData.currentUser || remoteData.users?.[0];
+        if (cu) {
+          document.getElementById('current-user-name').textContent = cu.name;
+          document.getElementById('user-avatar-text').textContent = cu.initials || cu.name.charAt(0);
+        }
+        navigate(currentPage);
+        showToast('↻ Data refreshed from Google Drive', 'info');
+      }
+    }
+  } catch(e) { console.warn('Refresh error:', e); }
+}
+
+function updateDriveUI(connected) {
+  const dot = document.getElementById('drive-dot');
+  const label = document.getElementById('drive-label');
+  const btn = document.getElementById('drive-btn');
+  const refresh = document.getElementById('drive-refresh-btn');
+  if (!dot) return;
+  if (connected) {
+    dot.className = 'drive-dot connected';
+    label.className = 'drive-label connected';
+    label.innerHTML = '☁️ Google Drive: <strong>Connected</strong> — araheem.consultant@gmail.com — Auto-syncing';
+    btn.textContent = 'Disconnect';
+    if (refresh) refresh.style.display = '';
+  } else {
+    dot.className = 'drive-dot';
+    label.className = 'drive-label';
+    label.innerHTML = '☁️ Google Drive: <strong style="color:var(--red)">Not Connected</strong> — Click to connect and sync across all devices';
+    btn.textContent = 'Connect Drive';
+    if (refresh) refresh.style.display = 'none';
+  }
+}
+
+function setSyncing(v) {
+  const dot = document.getElementById('drive-dot');
+  if (!driveAccessToken || !dot) return;
+  dot.className = 'drive-dot ' + (v ? 'syncing' : 'connected');
+}
+
+function bootApp(driveConnected) {
+  hideLoadingScreen();
+  appReady = true;
+  updateDriveUI(driveConnected);
+  const db = getDB();
+  const cu = db.currentUser;
+  if (cu) {
+    document.getElementById('current-user-name').textContent = cu.name;
+    document.getElementById('current-user-role').textContent = cu.role === 'admin' ? 'Administrator' : 'Staff Member';
+    document.getElementById('user-avatar-text').textContent = cu.initials || cu.name.charAt(0);
+  }
+  navigate('dashboard');
+  updateBadges();
+  // Periodically refresh from Drive (every 2 minutes) to catch changes from other devices
+  setInterval(refreshFromDrive, 120000);
 }
 
 // ==================== TOAST ====================
@@ -595,328 +895,6 @@ function confirmDelete(msg,cb) {
       <button class="btn btn-danger" onclick="closeModalForce();(${cb})()">Delete</button>
     </div>
   </div>`);
-}
-
-// ==================== DATA BACKUP & IMPORT ====================
-
-// Export full backup as JSON file (works offline, no OAuth needed)
-function exportDataBackup() {
-  const db = getDB();
-  const json = JSON.stringify(db, null, 2);
-  const blob = new Blob([json], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'client-portal-backup-' + new Date().toISOString().split('T')[0] + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Backup downloaded successfully', 'success');
-  logAudit('Exported full data backup', 'System');
-}
-
-// Import data from a backup JSON file (from old version or another device)
-function openImportModal() {
-  showModal(`<div class="modal modal-lg" onclick="event.stopPropagation()" style="max-width:600px;">
-    <div class="modal-header">
-      <span class="modal-title">⬆ Import Data from Old Version</span>
-      <span class="close-btn" onclick="closeModalForce()">×</span>
-    </div>
-    <div class="modal-body">
-      <div class="alert alert-blue" style="margin-bottom:16px;">
-        <div>
-          <strong>Migrating from your old Client Tracker?</strong><br>
-          <span style="font-size:12px;line-height:1.8;">
-            Step 1: Open your <strong>old file</strong> in the browser.<br>
-            Step 2: Press <strong>F12</strong> → Console tab → paste and run:<br>
-            <code style="background:var(--bg3);padding:4px 8px;border-radius:4px;display:block;margin:6px 0;font-size:11px;font-family:var(--mono);">copy(localStorage.getItem('ca_practice_db'))</code>
-            Step 3: Come back here → click "Paste from Clipboard" below, OR use the file method.
-          </span>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-        <div class="card" style="flex:1;min-width:200px;cursor:pointer;border:1.5px dashed var(--border2);" onclick="document.getElementById('import-file-input').click()">
-          <div style="text-align:center;padding:12px 0;">
-            <div style="font-size:28px;margin-bottom:6px;">📂</div>
-            <div style="font-size:13px;font-weight:500;">Upload Backup File</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:3px;">Select a .json backup file</div>
-          </div>
-          <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="readImportFile(this)">
-        </div>
-        <div class="card" style="flex:1;min-width:200px;cursor:pointer;border:1.5px dashed var(--border2);" onclick="pasteImportData()">
-          <div style="text-align:center;padding:12px 0;">
-            <div style="font-size:28px;margin-bottom:6px;">📋</div>
-            <div style="font-size:13px;font-weight:500;">Paste from Clipboard</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:3px;">After copying from console</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:12px;">
-        <label class="form-label">Or paste JSON data directly:</label>
-        <textarea class="form-input" id="import-json-area" placeholder='Paste your backup JSON here...' style="min-height:120px;font-family:var(--mono);font-size:11px;"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Import mode</label>
-        <select class="form-input" id="import-mode">
-          <option value="merge">Merge — keep existing data + add imported (recommended)</option>
-          <option value="replace">Replace all — overwrite everything with imported data</option>
-        </select>
-      </div>
-
-      <div id="import-preview" style="display:none;" class="alert alert-green"></div>
-      <div id="import-error" style="display:none;" class="alert alert-red"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button>
-      <button class="btn btn-secondary" onclick="validateImport()">Preview</button>
-      <button class="btn btn-primary" onclick="doImport()">Import Now</button>
-    </div>
-  </div>`);
-}
-
-function readImportFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    document.getElementById('import-json-area').value = e.target.result;
-    validateImport();
-  };
-  reader.readAsText(file);
-}
-
-async function pasteImportData() {
-  try {
-    const text = await navigator.clipboard.readText();
-    if (text) {
-      document.getElementById('import-json-area').value = text;
-      validateImport();
-      showToast('Data pasted from clipboard', 'success');
-    }
-  } catch(e) {
-    showToast('Could not read clipboard — please paste manually into the text area', 'info');
-    document.getElementById('import-json-area').focus();
-  }
-}
-
-function validateImport() {
-  const raw = document.getElementById('import-json-area').value.trim();
-  const preview = document.getElementById('import-preview');
-  const err = document.getElementById('import-error');
-  preview.style.display = 'none';
-  err.style.display = 'none';
-  if (!raw) { showToast('No data to validate', 'error'); return; }
-  try {
-    const data = JSON.parse(raw);
-    const clients = (data.clients||[]).length;
-    const tasks = (data.tasks||[]).length;
-    const billing = (data.billing||[]).length;
-    const fbr = (data.fbr||[]).length;
-    const secp = (data.secp||[]).length;
-    const leads = (data.leads||[]).length;
-    preview.style.display = 'flex';
-    preview.innerHTML = `✅ Valid backup detected:<br>
-      <strong>${clients}</strong> clients &nbsp;·&nbsp;
-      <strong>${tasks}</strong> tasks &nbsp;·&nbsp;
-      <strong>${billing}</strong> billing records &nbsp;·&nbsp;
-      <strong>${fbr}</strong> FBR records &nbsp;·&nbsp;
-      <strong>${secp}</strong> SECP records &nbsp;·&nbsp;
-      <strong>${leads}</strong> leads`;
-    return data;
-  } catch(e) {
-    err.style.display = 'flex';
-    err.innerHTML = '❌ Invalid JSON — make sure you copied the complete data from console.';
-    return null;
-  }
-}
-
-function doImport() {
-  const raw = document.getElementById('import-json-area').value.trim();
-  if (!raw) { showToast('No data to import', 'error'); return; }
-  let imported;
-  try { imported = JSON.parse(raw); } catch(e) { showToast('Invalid JSON data', 'error'); return; }
-
-  const mode = document.getElementById('import-mode').value;
-  const current = getDB();
-
-  let merged;
-  if (mode === 'replace') {
-    // Full replace but keep currentUser from this session
-    merged = {...imported, currentUser: current.currentUser};
-  } else {
-    // Merge: deduplicate by ID
-    const mergeArr = (a, b, key='id') => {
-      const map = {};
-      [...(a||[]), ...(b||[])].forEach(item => { if(item[key]) map[item[key]] = item; });
-      return Object.values(map);
-    };
-    merged = {
-      clients: mergeArr(current.clients, imported.clients),
-      tasks: mergeArr(current.tasks, imported.tasks),
-      billing: mergeArr(current.billing, imported.billing),
-      fbr: mergeArr(current.fbr, imported.fbr),
-      secp: mergeArr(current.secp, imported.secp),
-      documents: mergeArr(current.documents, imported.documents),
-      leads: mergeArr(current.leads, imported.leads),
-      users: mergeArr(current.users, imported.users),
-      audit: mergeArr(current.audit, imported.audit),
-      currentUser: current.currentUser,
-      driveFileId: current.driveFileId || imported.driveFileId || null
-    };
-  }
-
-  localStorage.setItem(DB_KEY, JSON.stringify(merged));
-  logAudit(`Data imported (${mode} mode): ${merged.clients.length} clients, ${merged.tasks.length} tasks`, 'System');
-  closeModalForce();
-  showToast(`✅ Import complete! ${merged.clients.length} clients, ${merged.tasks.length} tasks loaded.`, 'success', 5000);
-  setTimeout(() => location.reload(), 1800);
-}
-
-// Google Drive OAuth (requires valid Client ID in DRIVE_CLIENT_ID above)
-function handleDriveConnect() {
-  if (!DRIVE_CLIENT_ID || DRIVE_CLIENT_ID === '') {
-    showDriveSetupModal();
-    return;
-  }
-  if (driveAccessToken) {
-    driveAccessToken = null; driveFileId = null;
-    updateDriveUI(false);
-    showToast('Disconnected from Google Drive', 'info');
-    return;
-  }
-  if (!window.google || !window.google.accounts) {
-    showToast('Google API not loaded. Add your Client ID and reload.', 'error');
-    return;
-  }
-  const tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: DRIVE_CLIENT_ID,
-    scope: DRIVE_SCOPES,
-    hint: 'araheem.consultant@gmail.com',
-    callback: async (res) => {
-      if (res.error) { showToast('Drive auth failed: ' + res.error, 'error'); return; }
-      driveAccessToken = res.access_token;
-      const db = getDB();
-      driveFileId = db.driveFileId || null;
-      updateDriveUI(true);
-      showToast('✓ Connected to Google Drive!', 'success');
-      logAudit('Connected to Google Drive', 'System');
-      await syncToDrive(db);
-    }
-  });
-  tokenClient.requestAccessToken();
-}
-
-function showDriveSetupModal() {
-  showModal(`<div class="modal modal-lg" onclick="event.stopPropagation()" style="max-width:600px;">
-    <div class="modal-header">
-      <span class="modal-title">🔧 Google Drive Setup Guide</span>
-      <span class="close-btn" onclick="closeModalForce()">×</span>
-    </div>
-    <div class="modal-body">
-      <div class="alert alert-yellow" style="margin-bottom:14px;">
-        The Error 400 you saw was because no valid Google Client ID was configured. Follow these steps to fix it.
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div class="card card-sm">
-          <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;">Step 1 — Create Google Cloud Project</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.7;">Go to <strong>console.cloud.google.com</strong> → New Project → Name it "Client Management Portal"</div>
-        </div>
-        <div class="card card-sm">
-          <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;">Step 2 — Enable Google Drive API</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.7;">APIs & Services → Library → Search "Google Drive API" → Enable it</div>
-        </div>
-        <div class="card card-sm">
-          <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;">Step 3 — Create OAuth 2.0 Credentials</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.7;">
-            APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID<br>
-            Application type: <strong>Web application</strong><br>
-            Authorized origins: <strong>http://localhost:8080</strong> (if using local server)<br>
-            Copy the Client ID (ends with .apps.googleusercontent.com)
-          </div>
-        </div>
-        <div class="card card-sm">
-          <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;">Step 4 — Add Test User</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.7;">OAuth consent screen → Test users → Add <strong>araheem.consultant@gmail.com</strong></div>
-        </div>
-        <div class="card card-sm">
-          <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;">Step 5 — Paste Client ID in this file</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.7;">
-            Open this HTML file in a text editor → find the line:<br>
-            <code style="background:var(--bg3);padding:3px 8px;border-radius:4px;font-family:var(--mono);font-size:11px;">const DRIVE_CLIENT_ID = '';</code><br>
-            Replace with your Client ID, then also uncomment the GSI script in the &lt;head&gt; section.
-          </div>
-        </div>
-        <div class="card card-sm">
-          <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:4px;">✅ In the meantime — use Export Backup</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.7;">
-            The <strong>⬇ Export Backup</strong> button in the top bar downloads your complete data as a JSON file. You can copy this to Google Drive manually, or open it on any device and import it.
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModalForce()">Close</button>
-      <button class="btn btn-primary" onclick="closeModalForce();exportDataBackup()">⬇ Download Backup Now</button>
-    </div>
-  </div>`);
-}
-
-function updateDriveUI(connected) {
-  const dot = document.getElementById('drive-dot');
-  const label = document.getElementById('drive-label');
-  const btn = document.getElementById('drive-btn');
-  if (!dot || !label) return;
-  if (connected) {
-    dot.className = 'drive-dot connected';
-    label.innerHTML = '💾 Local save: Active &nbsp;|&nbsp; Google Drive: <strong style="color:var(--green);">Connected</strong> — Auto-syncing to araheem.consultant@gmail.com';
-    if (btn) { btn.textContent = '⬇ Export Backup'; }
-  } else {
-    dot.className = 'drive-dot';
-    label.innerHTML = '💾 Local save: Active &nbsp;|&nbsp; Google Drive: <span id="drive-status-text">Not connected — <a href="#" onclick="showDriveSetupModal();return false;" style="color:var(--accent);">Setup Guide</a></span>';
-    if (btn) btn.textContent = '⬇ Export Backup';
-  }
-}
-
-function setSyncing(v) {
-  const dot = document.getElementById('drive-dot');
-  if (!driveAccessToken || !dot) return;
-  dot.className = 'drive-dot ' + (v ? 'syncing' : 'connected');
-}
-
-async function syncToDrive(db) {
-  if (!driveAccessToken) return;
-  setSyncing(true);
-  try {
-    const json = JSON.stringify(db, null, 2);
-    const blob = new Blob([json], {type:'application/json'});
-    if (driveFileId) {
-      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
-        method: 'PATCH',
-        headers: {Authorization: `Bearer ${driveAccessToken}`, 'Content-Type': 'application/json'},
-        body: blob
-      });
-    } else {
-      const meta = new Blob([JSON.stringify({name: DRIVE_FILE_NAME})], {type:'application/json'});
-      const form = new FormData();
-      form.append('metadata', meta);
-      form.append('file', blob);
-      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: {Authorization: `Bearer ${driveAccessToken}`},
-        body: form
-      });
-      const data = await res.json();
-      driveFileId = data.id;
-      db.driveFileId = data.id;
-      localStorage.setItem(DB_KEY, JSON.stringify(db));
-    }
-    setSyncing(false);
-  } catch(e) {
-    setSyncing(false);
-    console.warn('Drive sync error:', e);
-  }
 }
 
 // ==================== DASHBOARD ====================
@@ -1964,17 +1942,27 @@ function exportAudit(){
 }
 
 // ==================== INIT ====================
-const db=getDB();
-const cu=db.currentUser;
-if(cu){
-  document.getElementById('current-user-name').textContent=cu.name;
-  document.getElementById('current-user-role').textContent=cu.role==='admin'?'Administrator':'Staff Member';
-  document.getElementById('user-avatar-text').textContent=cu.initials||cu.name.charAt(0);
-}
-// Restore drive file id if previously saved
-if(db.driveFileId) driveFileId=db.driveFileId;
-navigate('dashboard');
-updateBadges();
+// Show loading screen immediately
+showLoadingScreen('Connecting to Google Drive…');
+
+// The Google GSI script calls window.onGoogleLibraryLoad when ready
+window.onGoogleLibraryLoad = function() {
+  onGoogleScriptLoad();
+};
+
+// Fallback: if GSI already loaded before this ran, or if it times out
+setTimeout(() => {
+  if (!appReady) {
+    if (window.google && window.google.accounts) {
+      onGoogleScriptLoad();
+    } else {
+      // GSI failed to load (e.g. no internet for the Google script)
+      showLoadingScreen('Could not reach Google — loading local data…');
+      setTimeout(() => bootApp(false), 1500);
+    }
+  }
+}, 4000);
+
 </script>
 </body>
 </html>
