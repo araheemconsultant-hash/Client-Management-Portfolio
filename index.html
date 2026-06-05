@@ -147,6 +147,7 @@
       <span class="drive-label" id="drive-label">☁️ Google Drive: Connecting…</span>
       <button class="btn btn-ghost btn-sm" id="drive-refresh-btn" onclick="refreshFromDrive()" style="font-size:11px;padding:3px 8px;display:none;" title="Pull latest data from Drive">↻ Refresh</button>
       <button class="btn btn-secondary btn-sm" id="drive-btn" onclick="handleDriveConnect()" style="font-size:11px;padding:4px 10px;">Connecting…</button>
+      <button class="btn btn-ghost btn-sm" id="privacy-btn" onclick="togglePrivacy()" title="Toggle privacy mode" style="font-size:16px;padding:3px 8px;">👁️</button>
     </div>
 
     <div class="topbar">
@@ -221,11 +222,11 @@
   .user-role{font-size:11px;color:var(--text3)}
 
   /* TOPBAR */
-  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;min-height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;flex-wrap:wrap}
   .menu-btn{width:36px;height:36px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;display:none;flex-shrink:0}
   @media(max-width:768px){.menu-btn{display:flex}}
   .topbar-title{font-size:16px;font-weight:600;color:var(--text);flex:1}
-  .topbar-actions{display:flex;align-items:center;gap:8px}
+  .topbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;transition:all .15s;cursor:pointer;display:flex;align-items:center;gap:6px}
   .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2)}
   .btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{background:var(--bg4)}
@@ -494,6 +495,12 @@
   .toast.success{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.08);color:var(--green);}
   .toast.error{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red);}
   .toast.info{border-color:rgba(79,142,247,.3);background:var(--accentglow);color:var(--accent);}
+
+  /* PRIVACY MODE */
+  .privacy-on .private-val{filter:blur(6px);user-select:none;transition:filter .2s;}
+  .privacy-on .private-val:hover{filter:blur(0);}
+  #privacy-btn{font-size:16px;padding:3px 8px;transition:opacity .2s;}
+  .privacy-on #privacy-btn{opacity:0.5;}
 </style>
 </head>
 <body>
@@ -526,6 +533,11 @@
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
           Tasks
           <span class="nav-badge" id="tasks-badge" style="display:none">0</span>
+        </div>
+        <div class="nav-item" onclick="navigate('leads')" id="nav-leads">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+          Potential Clients
+          <span class="nav-badge yellow" id="leads-badge" style="display:none">0</span>
         </div>
         <div class="nav-item" onclick="navigate('calendar')" id="nav-calendar">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
@@ -604,7 +616,7 @@
 // ==================== GOOGLE DRIVE CONFIG ====================
 // Your OAuth 2.0 Client ID from "Client Tracker" project
 const DRIVE_CLIENT_ID = '280139619063-g30b20hjjngmg4v7ht7159jqdali7fec.apps.googleusercontent.com';
-const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets.readonly';
 const DRIVE_FILE_NAME = 'client-tracker-data.json';
 
 let driveAccessToken = null;
@@ -863,6 +875,7 @@ function bootApp(driveConnected) {
   hideLoadingScreen();
   appReady = true;
   updateDriveUI(driveConnected);
+  applyPrivacy();
   const db = getDB();
   const cu = db.currentUser;
   if (cu) {
@@ -1024,8 +1037,8 @@ function renderDashboard() {
     <div class="stats-grid">
       <div class="stat-card stat-blue"><div class="stat-label">Total Clients</div><div class="stat-value">${totalClients}</div><div class="stat-sub">${activeClients} active</div></div>
       <div class="stat-card stat-yellow"><div class="stat-label">Pending Tasks</div><div class="stat-value">${pendingTasks}</div><div class="stat-sub">${overdueTasks} overdue</div></div>
-      <div class="stat-card stat-green"><div class="stat-label">Total Received</div><div class="stat-value" style="font-size:18px;">${fmtPKR(totalIncome)}</div><div class="stat-sub">${fmtPKR(outstanding)} outstanding</div></div>
-      <div class="stat-card stat-red"><div class="stat-label">Pending Billable</div><div class="stat-value" style="font-size:18px;">${fmtPKR(taskBillable)}</div><div class="stat-sub">From active tasks</div></div>
+      <div class="stat-card stat-green"><div class="stat-label">Total Received</div><div class="stat-value private-val" style="font-size:18px;">${fmtPKR(totalIncome)}</div><div class="stat-sub private-val">${fmtPKR(outstanding)} outstanding</div></div>
+      <div class="stat-card stat-red"><div class="stat-label">Pending Billable</div><div class="stat-value private-val" style="font-size:18px;">${fmtPKR(taskBillable)}</div><div class="stat-sub">From active tasks</div></div>
       <div class="stat-card stat-teal"><div class="stat-label">Hot Leads</div><div class="stat-value">${hotLeads}</div><div class="stat-sub">${(db.leads||[]).length} total leads</div></div>
       <div class="stat-card stat-purple"><div class="stat-label">Overdue</div><div class="stat-value">${overdueTasks}</div><div class="stat-sub">Needs attention</div></div>
     </div>
@@ -1037,7 +1050,7 @@ function renderDashboard() {
           <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
             <div style="flex:1;min-width:0;">
               <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(t.title)}</div>
-              <div style="font-size:11px;color:var(--text3);">${escHtml(getClientName(db,t.clientId))} ${t.billable?'<span class="badge badge-teal" style="font-size:10px;">💰 '+fmtPKR(t.billAmount)+'</span>':''}</div>
+              <div style="font-size:11px;color:var(--text3);">${escHtml(getClientName(db,t.clientId))} ${t.billable?'<span class="badge badge-teal private-val" style="font-size:10px;">💰 '+fmtPKR(t.billAmount)+'</span>':''}</div>
             </div>
             ${dueIndicator(t.dueDate)}
           </div>`).join(''):'<div class="empty" style="padding:24px 0;"><div class="empty-text">No pending tasks</div></div>'}
@@ -1048,7 +1061,7 @@ function renderDashboard() {
         ${fbrFlags.length?fbrFlags.map(f=>`<div class="alert alert-${f.level}" style="margin-bottom:8px;">⚠️ <strong>${escHtml(f.client)}</strong> — ${escHtml(f.msg)}</div>`).join(''):'<div class="alert alert-green">All active clients appear compliant</div>'}
         <div class="divider"></div>
         <div class="section-title" style="margin-bottom:10px;font-size:13px;">Monthly Income</div>
-        <div class="mini-bar">${barHtml||'<div style="color:var(--text3);font-size:12px;">No data yet</div>'}</div>
+        <div class="mini-bar private-val">${barHtml||'<div style="color:var(--text3);font-size:12px;">No data yet</div>'}</div>
         <div style="display:flex;justify-content:space-between;margin-top:4px;">${monthKeys.map(k=>`<div style="font-size:9px;color:var(--text3);">${k.substr(5)}</div>`).join('')}</div>
       </div>
     </div>
@@ -1831,7 +1844,7 @@ function renderLeads(){
               </div>
               ${l.services?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;">${l.services.split(',').map(s=>`<span class="badge badge-purple" style="font-size:10px;">${escHtml(s.trim())}</span>`).join('')}</div>`:''}
               ${l.notes?`<div style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic;">"${escHtml(l.notes)}"</div>`:''}
-            </div>
+              ${l.submittedAt?`<div style="font-size:11px;color:var(--text3);margin-top:4px;">🕐 Submitted: ${escHtml(l.submittedAt)}</div>`:''}            </div>
           </div>
           <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
             <button class="btn btn-primary btn-sm" onclick="sendLeadEmail('${l.id}')">✉️ Send Pitch Email</button>
@@ -1956,48 +1969,184 @@ function exportLeads(){
   exportToExcel(data,'Leads');
 }
 
-// ==================== WEB LEADS IMPORT ====================
-const WEB_LEADS_FILE_NAME = 'client-tracker-leads.json';
+// ==================== PRIVACY MODE ====================
+let privacyOn = localStorage.getItem('ct_privacy') === '1';
+function applyPrivacy(){
+  document.getElementById('app').classList.toggle('privacy-on', privacyOn);
+  const btn = document.getElementById('privacy-btn');
+  if(btn) btn.textContent = privacyOn ? '🔒' : '👁️';
+}
+function togglePrivacy(){
+  privacyOn = !privacyOn;
+  localStorage.setItem('ct_privacy', privacyOn ? '1' : '0');
+  applyPrivacy();
+  showToast(privacyOn ? 'Privacy mode on — financials hidden' : 'Privacy mode off', 'info');
+}
+
+// ==================== WEB LEADS IMPORT (Google Sheets) ====================
+const SHEET_ID = '1uUP8yq3t0ygxsxY9IXT7oURt4yOpO5UObRsvUCQra8A';
 
 async function importWebLeads(){
   if(!driveAccessToken){
     showToast('Connect Google Drive first to import web leads','error');
     return;
   }
-  // Show loading state on button
   const btn=document.querySelector('[onclick="importWebLeads()"]');
   const origLabel=btn?btn.innerHTML:'';
   if(btn){btn.disabled=true;btn.innerHTML='⏳ Importing...';}
 
   try{
-    // Search for the leads file on Drive
-    const searchRes=await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=name='${WEB_LEADS_FILE_NAME}'+and+trashed=false&fields=files(id,modifiedTime)&orderBy=modifiedTime+desc`,
+    // Read sheet values via Sheets API
+    const range='Sheet1!A2:F1000'; // skip header row, cols A-F
+    const sheetsRes=await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`,
       {headers:{Authorization:`Bearer ${driveAccessToken}`}}
     );
-    const searchData=await searchRes.json();
 
-    if(!searchData.files||searchData.files.length===0){
-      showToast('No web leads file found on Drive yet — submit a test lead first','info');
+    if(!sheetsRes.ok){
+      const errData=await sheetsRes.json();
+      console.error('Sheets API error:',errData);
+      // If scope missing, prompt re-auth
+      if(sheetsRes.status===403||sheetsRes.status===401){
+        showToast('Need Sheets permission — please reconnect Google Drive','error');
+      } else {
+        showToast(`Sheets API error: ${sheetsRes.status}`,'error');
+      }
       if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
       return;
     }
 
-    // Download the file
+    const sheetsData=await sheetsRes.json();
+    const rows=sheetsData.values||[];
+    console.log(`Fetched ${rows.length} rows from sheet`);
+
+    if(rows.length===0){
+      showToast('No submissions in your sheet yet','info');
+      if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+      return;
+    }
+
+    const db=getDB();
+    if(!db.leads) db.leads=[];
+    if(!db.importedTimestamps) db.importedTimestamps=[];
+
+    const imported=new Set(db.importedTimestamps);
+    let newCount=0;
+
+    rows.forEach(row=>{
+      const timestamp = row[0]||'';
+      const name      = row[1]||'Unknown';
+      const phone     = row[2]||'';
+      const email     = row[3]||'';
+      const filingType= row[4]||'';
+      const message   = row[5]||'';
+
+      if(!timestamp) return; // skip empty rows
+      if(imported.has(timestamp)) return; // already imported
+
+      const lead={
+        id: uid(),
+        name: name,
+        contactName: name,
+        company: '',
+        email: email,
+        phone: phone,
+        services: filingType,
+        status: 'warm',
+        notes: message,
+        estimatedValue: 0,
+        source: 'Tax Filing Website',
+        submittedAt: timestamp,
+        created: new Date().toISOString()
+      };
+
+      db.leads.unshift(lead);
+      db.importedTimestamps.push(timestamp);
+      newCount++;
+    });
+
+    if(newCount>0){
+      logAudit(`Imported ${newCount} web lead(s) from Tax Return Data sheet`,'Leads');
+      saveDB(db);
+      renderLeads();
+      updateBadges();
+      showToast(`✅ ${newCount} new lead${newCount>1?'s':''} imported!`,'success');
+    } else {
+      showToast('No new leads — all submissions already imported','info');
+    }
+
+  } catch(err){
+    console.error('Web leads import error:',err);
+    showToast('Import failed — open F12 console for details','error');
+  }
+
+  if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+}
+
+async function importWebLeads(){
+  if(!driveAccessToken){
+    showToast('Connect Google Drive first to import web leads','error');
+    return;
+  }
+  const btn=document.querySelector('[onclick="importWebLeads()"]');
+  const origLabel=btn?btn.innerHTML:'';
+  if(btn){btn.disabled=true;btn.innerHTML='⏳ Importing...';}
+
+  try{
+    // Search Drive for the leads file
+    const searchRes=await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name%3D'${encodeURIComponent(WEB_LEADS_FILE_NAME)}'+and+trashed%3Dfalse&fields=files(id%2CmodifiedTime)&orderBy=modifiedTime+desc`,
+      {headers:{Authorization:`Bearer ${driveAccessToken}`}}
+    );
+
+    if(!searchRes.ok){
+      const errText=await searchRes.text();
+      console.error('Drive search error:',errText);
+      showToast(`Drive search failed: ${searchRes.status} — try reconnecting Drive`,'error');
+      if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+      return;
+    }
+
+    const searchData=await searchRes.json();
+    console.log('Drive search result:',searchData);
+
+    if(!searchData.files||searchData.files.length===0){
+      showToast('No web leads file found on Drive yet — make sure your Apps Script ran successfully','info');
+      if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+      return;
+    }
+
     const fileId=searchData.files[0].id;
     const fileRes=await fetch(
       `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
       {headers:{Authorization:`Bearer ${driveAccessToken}`}}
     );
-    const webLeads=await fileRes.json();
 
-    if(!Array.isArray(webLeads)||webLeads.length===0){
-      showToast('Web leads file is empty — no submissions yet','info');
+    if(!fileRes.ok){
+      console.error('Drive file read error:',fileRes.status);
+      showToast(`Could not read leads file: ${fileRes.status}`,'error');
       if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
       return;
     }
 
-    // Merge into local DB — skip duplicates by id
+    let webLeads;
+    try{
+      webLeads=await fileRes.json();
+    } catch(parseErr){
+      console.error('JSON parse error:',parseErr);
+      showToast('Leads file is not valid JSON — check your Apps Script','error');
+      if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+      return;
+    }
+
+    console.log('Web leads fetched:',webLeads);
+
+    if(!Array.isArray(webLeads)||webLeads.length===0){
+      showToast('No leads in the file yet — submit a test lead from your website first','info');
+      if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+      return;
+    }
+
     const db=getDB();
     if(!db.leads) db.leads=[];
     const existingIds=new Set(db.leads.map(l=>l.id));
@@ -2005,7 +2154,6 @@ async function importWebLeads(){
 
     webLeads.forEach(lead=>{
       if(!existingIds.has(lead.id)){
-        // Ensure all expected fields exist
         const normalised={
           id:lead.id||uid(),
           name:lead.name||lead.fullName||'Unknown',
@@ -2020,7 +2168,7 @@ async function importWebLeads(){
           source:lead.source||'Tax Filing Website',
           created:lead.created||new Date().toISOString()
         };
-        db.leads.unshift(normalised); // newest at top
+        db.leads.unshift(normalised);
         newCount++;
       }
     });
@@ -2037,7 +2185,7 @@ async function importWebLeads(){
 
   } catch(err){
     console.error('Web leads import error:',err);
-    showToast('Import failed — check console for details','error');
+    showToast('Import failed — open browser console (F12) for details','error');
   }
 
   if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
