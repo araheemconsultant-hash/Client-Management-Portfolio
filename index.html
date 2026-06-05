@@ -1791,6 +1791,7 @@ let leadSearch='',leadFilter='All';
 function renderLeadsActions(){
   document.getElementById('topbar-actions').innerHTML=`
     <button class="btn btn-primary" onclick="openLeadModal()">+ Add Lead</button>
+    <button class="btn btn-secondary btn-sm" onclick="importWebLeads()" title="Pull new leads submitted from your tax filing website">🌐 Import Web Leads</button>
     <button class="btn btn-secondary btn-sm" onclick="exportLeads()">Export</button>
   `;
 }
@@ -1820,6 +1821,7 @@ function renderLeads(){
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                 <div style="font-size:15px;font-weight:600;">${escHtml(l.name||l.contactName)}</div>
                 <span class="badge ${statusCol}">${statusIcon} ${l.status.charAt(0).toUpperCase()+l.status.slice(1)}</span>
+                ${l.source?`<span class="badge badge-purple" style="font-size:10px;">🌐 ${escHtml(l.source)}</span>`:''}
               </div>
               ${l.company?`<div style="font-size:12px;color:var(--accent);margin-top:2px;">🏢 ${escHtml(l.company)}</div>`:''}
               <div style="display:flex;flex-direction:column;gap:3px;margin-top:8px;">
@@ -1950,8 +1952,95 @@ function doConvertLead(leadId){
 
 function exportLeads(){
   const db=getDB();
-  const data=(db.leads||[]).map(l=>({Name:l.name,'Contact Person':l.contactName,Company:l.company,Email:l.email,Phone:l.phone,Status:l.status,Services:l.services,'Est. Value (PKR)':l.estimatedValue,Notes:l.notes,Created:l.created}));
+  const data=(db.leads||[]).map(l=>({Name:l.name,'Contact Person':l.contactName,Company:l.company,Email:l.email,Phone:l.phone,Status:l.status,Services:l.services,'Est. Value (PKR)':l.estimatedValue,Notes:l.notes,Source:l.source||'',Created:l.created}));
   exportToExcel(data,'Leads');
+}
+
+// ==================== WEB LEADS IMPORT ====================
+const WEB_LEADS_FILE_NAME = 'client-tracker-leads.json';
+
+async function importWebLeads(){
+  if(!driveAccessToken){
+    showToast('Connect Google Drive first to import web leads','error');
+    return;
+  }
+  // Show loading state on button
+  const btn=document.querySelector('[onclick="importWebLeads()"]');
+  const origLabel=btn?btn.innerHTML:'';
+  if(btn){btn.disabled=true;btn.innerHTML='⏳ Importing...';}
+
+  try{
+    // Search for the leads file on Drive
+    const searchRes=await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${WEB_LEADS_FILE_NAME}'+and+trashed=false&fields=files(id,modifiedTime)&orderBy=modifiedTime+desc`,
+      {headers:{Authorization:`Bearer ${driveAccessToken}`}}
+    );
+    const searchData=await searchRes.json();
+
+    if(!searchData.files||searchData.files.length===0){
+      showToast('No web leads file found on Drive yet — submit a test lead first','info');
+      if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+      return;
+    }
+
+    // Download the file
+    const fileId=searchData.files[0].id;
+    const fileRes=await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      {headers:{Authorization:`Bearer ${driveAccessToken}`}}
+    );
+    const webLeads=await fileRes.json();
+
+    if(!Array.isArray(webLeads)||webLeads.length===0){
+      showToast('Web leads file is empty — no submissions yet','info');
+      if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+      return;
+    }
+
+    // Merge into local DB — skip duplicates by id
+    const db=getDB();
+    if(!db.leads) db.leads=[];
+    const existingIds=new Set(db.leads.map(l=>l.id));
+    let newCount=0;
+
+    webLeads.forEach(lead=>{
+      if(!existingIds.has(lead.id)){
+        // Ensure all expected fields exist
+        const normalised={
+          id:lead.id||uid(),
+          name:lead.name||lead.fullName||'Unknown',
+          contactName:lead.contactName||lead.name||lead.fullName||'',
+          company:lead.company||'',
+          email:lead.email||'',
+          phone:lead.phone||'',
+          services:lead.services||lead.filingType||'',
+          status:lead.status||'warm',
+          notes:lead.notes||lead.message||'',
+          estimatedValue:lead.estimatedValue||0,
+          source:lead.source||'Tax Filing Website',
+          created:lead.created||new Date().toISOString()
+        };
+        db.leads.unshift(normalised); // newest at top
+        newCount++;
+      }
+    });
+
+    if(newCount>0){
+      logAudit(`Imported ${newCount} web lead(s) from tax filing website`,'Leads');
+      saveDB(db);
+      renderLeads();
+      updateBadges();
+      showToast(`✅ ${newCount} new lead${newCount>1?'s':''} imported from your website!`,'success');
+    } else {
+      showToast('All web leads are already in your tracker — nothing new','info');
+    }
+
+  } catch(err){
+    console.error('Web leads import error:',err);
+    showToast('Import failed — check console for details','error');
+  }
+
+  if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
 }
 
 // ==================== USERS ====================
