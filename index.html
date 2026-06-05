@@ -1999,7 +1999,7 @@ async function importWebLeads(){
     // Read sheet values via Sheets API
     const range='Sheet1!A2:F1000'; // skip header row, cols A-F
     const sheetsRes=await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:F1000`,
       {headers:{Authorization:`Bearer ${driveAccessToken}`}}
     );
 
