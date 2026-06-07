@@ -172,19 +172,19 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --bg:#120D1A;--bg2:#1C1028;--bg3:#251535;--bg4:#2E1A40;
-    --surface:#251535;--surface2:#2E1A40;--surface3:#3D2550;
-    --border:#3D2550;--border2:#5A3570;
-    --text:#F0EAF5;--text2:#C4A8D4;--text3:#8B6A9B;
-    --accent:#6D2077;--accent2:#9B4F9F;--accentglow:rgba(109,32,119,0.20);
+    --bg:#0D0D0D;--bg2:#161616;--bg3:#1E1E1E;--bg4:#252525;
+    --surface:#1E1E1E;--surface2:#252525;--surface3:#2E2E2E;
+    --border:#2A2A2A;--border2:#363636;
+    --text:#F0F0F0;--text2:#A0A0A0;--text3:#606060;
+    --accent:#6D2077;--accent2:#9B4F9F;--accentglow:rgba(109,32,119,0.15);
     --green:#22c55e;--green2:rgba(34,197,94,0.12);
     --red:#ef4444;--red2:rgba(239,68,68,0.12);
     --yellow:#f59e0b;--yellow2:rgba(245,158,11,0.12);
     --teal:#14b8a6;--teal2:rgba(20,184,166,0.12);
-    --purple:#C084D4;--purple2:rgba(192,132,212,0.15);
+    --purple:#C084D4;--purple2:rgba(192,132,212,0.12);
     --orange:#f97316;--orange2:rgba(249,115,22,0.12);
     --radius:10px;--radius2:14px;--radius3:20px;
-    --shadow:0 4px 20px rgba(0,0,0,0.5);
+    --shadow:0 4px 20px rgba(0,0,0,0.6);
     --shadow2:0 2px 8px rgba(0,0,0,0.4);
     --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
   }
@@ -2571,33 +2571,33 @@ function setTheme(theme){
 function applyTheme(theme){
   const root=document.documentElement;
   const setDark=()=>{
-    root.style.setProperty('--bg','#120D1A');
-    root.style.setProperty('--bg2','#1C1028');
-    root.style.setProperty('--bg3','#251535');
-    root.style.setProperty('--bg4','#2E1A40');
-    root.style.setProperty('--surface','#251535');
-    root.style.setProperty('--surface2','#2E1A40');
-    root.style.setProperty('--surface3','#3D2550');
-    root.style.setProperty('--border','#3D2550');
-    root.style.setProperty('--border2','#5A3570');
-    root.style.setProperty('--text','#F0EAF5');
-    root.style.setProperty('--text1','#F0EAF5');
-    root.style.setProperty('--text2','#C4A8D4');
-    root.style.setProperty('--text3','#8B6A9B');
+    root.style.setProperty('--bg','#0D0D0D');
+    root.style.setProperty('--bg2','#161616');
+    root.style.setProperty('--bg3','#1E1E1E');
+    root.style.setProperty('--bg4','#252525');
+    root.style.setProperty('--surface','#1E1E1E');
+    root.style.setProperty('--surface2','#252525');
+    root.style.setProperty('--surface3','#2E2E2E');
+    root.style.setProperty('--border','#2A2A2A');
+    root.style.setProperty('--border2','#363636');
+    root.style.setProperty('--text','#F0F0F0');
+    root.style.setProperty('--text1','#F0F0F0');
+    root.style.setProperty('--text2','#A0A0A0');
+    root.style.setProperty('--text3','#606060');
     root.style.setProperty('--accent','#6D2077');
     root.style.setProperty('--accent2','#9B4F9F');
-    root.style.setProperty('--accentglow','rgba(109,32,119,0.20)');
+    root.style.setProperty('--accentglow','rgba(109,32,119,0.15)');
     root.style.setProperty('--purple','#C084D4');
-    root.style.setProperty('--purple2','rgba(192,132,212,0.15)');
-    root.style.setProperty('--shadow','0 4px 20px rgba(0,0,0,0.5)');
+    root.style.setProperty('--purple2','rgba(192,132,212,0.12)');
+    root.style.setProperty('--shadow','0 4px 20px rgba(0,0,0,0.6)');
     root.style.setProperty('--shadow2','0 2px 8px rgba(0,0,0,0.4)');
     root.style.setProperty('--green2','rgba(34,197,94,0.12)');
     root.style.setProperty('--red2','rgba(239,68,68,0.12)');
     root.style.setProperty('--yellow2','rgba(245,158,11,0.12)');
     root.style.setProperty('--teal2','rgba(20,184,166,0.12)');
     root.style.setProperty('--orange2','rgba(249,115,22,0.12)');
-    document.body.style.background='#120D1A';
-    document.body.style.color='#F0EAF5';
+    document.body.style.background='#0D0D0D';
+    document.body.style.color='#F0F0F0';
   };
   const setLight=()=>{
     root.style.setProperty('--bg','#F2F2F5');
