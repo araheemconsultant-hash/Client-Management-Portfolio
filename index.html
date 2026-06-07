@@ -89,7 +89,8 @@
         </div>
       </div>
 
-      <div class="nav-section">
+      <!-- Compliance modules hidden -->
+      <div class="nav-section" style="display:none;">
         <div class="nav-label">Compliance</div>
         <div class="nav-item" onclick="navigate('fbr')" id="nav-fbr">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/></svg>
@@ -171,20 +172,20 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --bg:#0f1117;--bg2:#161b27;--bg3:#1e2535;--bg4:#252d40;
-    --surface:#1e2535;--surface2:#252d40;--surface3:#2d3650;
-    --border:#2d3a52;--border2:#3a4a6b;
-    --text:#e8edf5;--text2:#a0aec0;--text3:#6b7a99;
-    --accent:#4f8ef7;--accent2:#3a7de8;--accentglow:rgba(79,142,247,0.15);
+    --bg:#120D1A;--bg2:#1C1028;--bg3:#251535;--bg4:#2E1A40;
+    --surface:#251535;--surface2:#2E1A40;--surface3:#3D2550;
+    --border:#3D2550;--border2:#5A3570;
+    --text:#F0EAF5;--text2:#C4A8D4;--text3:#8B6A9B;
+    --accent:#6D2077;--accent2:#9B4F9F;--accentglow:rgba(109,32,119,0.20);
     --green:#22c55e;--green2:rgba(34,197,94,0.12);
     --red:#ef4444;--red2:rgba(239,68,68,0.12);
     --yellow:#f59e0b;--yellow2:rgba(245,158,11,0.12);
     --teal:#14b8a6;--teal2:rgba(20,184,166,0.12);
-    --purple:#a78bfa;--purple2:rgba(167,139,250,0.12);
+    --purple:#C084D4;--purple2:rgba(192,132,212,0.15);
     --orange:#f97316;--orange2:rgba(249,115,22,0.12);
     --radius:10px;--radius2:14px;--radius3:20px;
-    --shadow:0 4px 20px rgba(0,0,0,0.4);
-    --shadow2:0 2px 8px rgba(0,0,0,0.3);
+    --shadow:0 4px 20px rgba(0,0,0,0.5);
+    --shadow2:0 2px 8px rgba(0,0,0,0.4);
     --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
   }
   body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
@@ -500,15 +501,33 @@
   .toast.error{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red);}
   .toast.info{border-color:rgba(79,142,247,.3);background:var(--accentglow);color:var(--accent);}
 
-  /* PRIVACY MODE */
-  .privacy-on .private-val{color:transparent!important;text-shadow:0 0 8px var(--text2);user-select:none;transition:all .2s;position:relative;}
-  .privacy-on .private-val::after{content:'PKR ••••••';position:absolute;left:0;top:0;color:var(--text2);font-size:inherit;}
-  .privacy-on .stat-value.private-val::after{content:'••••••';}
-  .privacy-on .private-val:hover{color:inherit!important;text-shadow:none;}
+  /* PRIVACY MODE — asterisks only, no blur */
+  .privacy-on .private-val{
+    color:transparent!important;
+    position:relative;
+    user-select:none;
+  }
+  .privacy-on .private-val::after{
+    content:'••••••';
+    position:absolute;
+    left:0;top:0;
+    color:var(--text3);
+    font-size:inherit;
+    font-weight:inherit;
+    letter-spacing:2px;
+  }
+  .privacy-on .private-val:hover{color:inherit!important;}
   .privacy-on .private-val:hover::after{display:none;}
   #privacy-btn{transition:opacity .2s;}
 
-  /* DRIVE DISCONNECT BANNER */
+  /* DOCUMENT FULLSCREEN PREVIEW */
+  .doc-preview-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;}
+  .doc-preview-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .doc-preview-title{font-size:14px;font-weight:600;color:var(--text);}
+  .doc-preview-close{width:36px;height:36px;border-radius:8px;background:var(--bg3);border:none;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .doc-preview-body{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .doc-preview-body iframe{width:100%;height:100%;border:none;border-radius:8px;background:#fff;}
+  .doc-preview-body img{max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;}
   .drive-disconnect-banner{background:#7c2d12;color:#fecaca;padding:8px 20px;font-size:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;}
 </style>
 </head>
@@ -554,7 +573,8 @@
         </div>
       </div>
 
-      <div class="nav-section">
+      <!-- Compliance modules hidden -->
+      <div class="nav-section" style="display:none;">
         <div class="nav-label">Compliance</div>
         <div class="nav-item" onclick="navigate('fbr')" id="nav-fbr">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/></svg>
@@ -1030,12 +1050,12 @@ function renderDashboard() {
 
   document.getElementById('page-content').innerHTML=`
     <div class="stats-grid">
-      <div class="stat-card stat-blue"><div class="stat-label">Total Clients</div><div class="stat-value">${totalClients}</div><div class="stat-sub">${activeClients} active</div></div>
+      <div class="stat-card stat-blue"><div class="stat-label">Active Clients</div><div class="stat-value">${activeClients}</div><div class="stat-sub">${totalClients} total clients</div></div>
       <div class="stat-card stat-yellow"><div class="stat-label">Pending Tasks</div><div class="stat-value">${pendingTasks}</div><div class="stat-sub">${overdueTasks} overdue</div></div>
       <div class="stat-card stat-green"><div class="stat-label">Total Received</div><div class="stat-value private-val" style="font-size:18px;">${fmtPKR(totalIncome)}</div><div class="stat-sub private-val">${fmtPKR(outstanding)} outstanding</div></div>
       <div class="stat-card stat-red"><div class="stat-label">Pending Billable</div><div class="stat-value private-val" style="font-size:18px;">${fmtPKR(taskBillable)}</div><div class="stat-sub">From active tasks</div></div>
       <div class="stat-card stat-teal"><div class="stat-label">Hot Leads</div><div class="stat-value">${hotLeads}</div><div class="stat-sub">${(db.leads||[]).length} total leads</div></div>
-      <div class="stat-card stat-purple"><div class="stat-label">Overdue</div><div class="stat-value">${overdueTasks}</div><div class="stat-sub">Needs attention</div></div>
+      <div class="stat-card stat-purple"><div class="stat-label">Overdue Tasks</div><div class="stat-value">${overdueTasks}</div><div class="stat-sub">Needs attention</div></div>
     </div>
 
     <div class="grid-2" style="margin-bottom:16px;">
@@ -1092,7 +1112,7 @@ function renderDashboard() {
 }
 
 // ==================== CLIENTS ====================
-let clientSearch='',clientFilter='All';
+let clientSearch='',clientStatusFilter='All',clientTypeFilter='All';
 
 function renderClientsActions() {
   document.getElementById('topbar-actions').innerHTML=`
@@ -1105,17 +1125,21 @@ function renderClients() {
   const db=getDB();
   let clients=db.clients;
   if(clientSearch) clients=clients.filter(c=>(c.name+c.business+c.ntn+c.cnic+c.contact).toLowerCase().includes(clientSearch.toLowerCase()));
-  if(clientFilter!=='All') clients=clients.filter(c=>c.type===clientFilter||c.status===clientFilter);
+  if(clientStatusFilter!=='All') clients=clients.filter(c=>c.status===clientStatusFilter);
+  if(clientTypeFilter!=='All') clients=clients.filter(c=>c.type===clientTypeFilter);
 
   document.getElementById('page-content').innerHTML=`
-    <div class="section-header" style="margin-bottom:14px;">
-      <div class="search-bar">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <div class="search-bar" style="flex:1;min-width:180px;">
         <span class="search-icon">🔍</span>
         <input type="text" placeholder="Search clients..." value="${escHtml(clientSearch)}" oninput="clientSearch=this.value;renderClients()">
       </div>
-      <div class="tabs" style="margin-bottom:0;">
-        ${['All','Individual','AOP','Company','Active','Inactive','Ex-Client'].map(f=>`<div class="tab ${clientFilter===f?'active':''}" onclick="clientFilter='${f}';renderClients()">${f}</div>`).join('')}
-      </div>
+      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;" onchange="clientStatusFilter=this.value;renderClients()">
+        ${['All','Active','Inactive'].map(f=>`<option value="${f}" ${clientStatusFilter===f?'selected':''}>${f==='All'?'All Status':f}</option>`).join('')}
+      </select>
+      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;" onchange="clientTypeFilter=this.value;renderClients()">
+        ${['All','Individual','AOP','Company'].map(f=>`<option value="${f}" ${clientTypeFilter===f?'selected':''}>${f==='All'?'All Types':f}</option>`).join('')}
+      </select>
     </div>
     ${clients.length===0?`<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No clients found</div><br><button class="btn btn-primary" onclick="openClientModal()">+ Add Client</button></div>`:`
     <div class="table-wrap">
@@ -1166,7 +1190,7 @@ function openClientModal(id) {
         <div class="form-group"><label class="form-label">Contact</label><input class="form-input" id="cf-contact" placeholder="+92 300 1234567" value="${escHtml(c?.contact||'')}"></div>
         <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="cf-email" placeholder="client@email.com" value="${escHtml(c?.email||'')}"></div>
         <div class="form-group"><label class="form-label">Client Type *</label><select class="form-input" id="cf-type"><option ${c?.type==='Individual'?'selected':''}>Individual</option><option ${c?.type==='AOP'?'selected':''}>AOP</option><option ${c?.type==='Company'?'selected':''}>Company</option></select></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="cf-status"><option ${c?.status==='Active'||!c?'selected':''}>Active</option><option ${c?.status==='Inactive'?'selected':''}>Inactive</option><option ${c?.status==='Ex-Client'?'selected':''}>Ex-Client</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="cf-status"><option ${c?.status==='Active'||!c?'selected':''}>Active</option><option ${c?.status==='Inactive'?'selected':''}>Inactive</option></select></div>
         <div class="form-group"><label class="form-label">Services *</label><select class="form-input" id="cf-services"><option value="FBR" ${c?.services==='FBR'||!c?'selected':''}>FBR Only</option><option value="SECP" ${c?.services==='SECP'?'selected':''}>SECP Only</option><option value="Both" ${c?.services==='Both'?'selected':''}>Both FBR & SECP</option></select></div>
         <div class="form-group"><label class="form-label">Engagement Start</label><input type="date" class="form-input" id="cf-start" value="${c?.engagementStart||''}"></div>
         <div class="form-group"><label class="form-label">Annual Fee (PKR)</label><input type="number" class="form-input" id="cf-fee" placeholder="100000" value="${c?.fee||''}"></div>
@@ -1435,20 +1459,224 @@ function autoCreateRecurring() {
   renderTasks();updateBadges();
 }
 
-function generateBillingFromTasks() {
+function generateBillingFromTasks(){
   const db=getDB();
-  const billableTasks=db.tasks.filter(t=>t.billable&&t.billAmount>0&&t.clientId);
-  if(!billableTasks.length){showToast('No billable tasks found','info');return;}
-  let created=0;
+  const billableTasks=db.tasks.filter(t=>t.billable&&t.billAmount>0&&t.clientId&&!db.billing.some(b=>b.taskId===t.id));
+  if(!billableTasks.length){showToast('No unbilled billable tasks found','info');return;}
+
+  // Group by client for display
+  const byClient={};
   billableTasks.forEach(t=>{
-    const alreadyBilled=db.billing.some(b=>b.taskId===t.id);
-    if(!alreadyBilled){
-      db.billing.push({id:uid(),clientId:t.clientId,taskId:t.id,amount:t.billAmount,date:new Date().toISOString().split('T')[0],description:t.billDesc||t.title,status:'Pending',isTaskLinked:true,created:new Date().toISOString()});
-      created++;
-    }
+    if(!byClient[t.clientId]) byClient[t.clientId]=[];
+    byClient[t.clientId].push(t);
+  });
+
+  const taskRows=Object.entries(byClient).map(([cid,tasks])=>{
+    const cl=db.clients.find(c=>c.id===cid);
+    return `<div style="margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">${escHtml(cl?.business||cl?.name||'Unknown')}</div>
+      ${tasks.map(t=>`
+        <label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;background:var(--bg3);">
+          <input type="checkbox" class="task-bill-check" data-id="${t.id}" data-client="${t.clientId}" data-amount="${t.billAmount}" data-desc="${escHtml(t.billDesc||t.title)}" checked style="width:16px;height:16px;accent-color:var(--accent);">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:500;">${escHtml(t.title)}</div>
+            ${t.billDesc?`<div style="font-size:11px;color:var(--text3);">${escHtml(t.billDesc)}</div>`:''}
+          </div>
+          <span style="font-size:13px;font-weight:600;color:var(--accent);">${fmtPKR(t.billAmount)}</span>
+        </label>`).join('')}
+    </div>`;
+  }).join('');
+
+  showModal(`<div class="modal" onclick="event.stopPropagation()" style="max-width:520px;">
+    <div class="modal-header"><span class="modal-title">💰 Bill from Tasks</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body" style="max-height:420px;overflow-y:auto;">
+      <div style="font-size:13px;color:var(--text3);margin-bottom:14px;">Select the tasks to bill. Each selected task will create a pending billing entry.</div>
+      ${taskRows}
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <div style="font-size:13px;color:var(--text3);" id="bill-task-total">Total: ${fmtPKR(billableTasks.reduce((s,t)=>s+Number(t.billAmount),0))}</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmBillTasks()">Create Billing Entries</button>
+      </div>
+    </div>
+  </div>`);
+
+  // Update total on checkbox change
+  setTimeout(()=>{
+    document.querySelectorAll('.task-bill-check').forEach(cb=>{
+      cb.addEventListener('change',()=>{
+        const total=[...document.querySelectorAll('.task-bill-check:checked')].reduce((s,c)=>s+Number(c.dataset.amount),0);
+        document.getElementById('bill-task-total').textContent='Total: '+fmtPKR(total);
+      });
+    });
+  },100);
+}
+
+function confirmBillTasks(){
+  const db=getDB();
+  const checked=[...document.querySelectorAll('.task-bill-check:checked')];
+  if(!checked.length){showToast('Select at least one task','error');return;}
+  let created=0;
+  checked.forEach(cb=>{
+    db.billing.push({id:uid(),clientId:cb.dataset.client,taskId:cb.dataset.id,amount:Number(cb.dataset.amount),date:new Date().toISOString().split('T')[0],description:cb.dataset.desc,status:'Pending',isTaskLinked:true,created:new Date().toISOString()});
+    created++;
   });
   logAudit(`Generated ${created} billing entries from tasks`,'Billing');
-  saveDB(db);showToast(`${created} billing entries created from tasks`,'success');
+  saveDB(db);closeModalForce();navigate('billing');showToast(`${created} billing entries created`,'success');
+}
+
+// ==================== QUOTATION ====================
+function openQuotationModal(){
+  const db=getDB();
+  const today=new Date();
+  const expiry=new Date(today);expiry.setDate(expiry.getDate()+30);
+  const expiryStr=expiry.toISOString().split('T')[0];
+  const todayStr=today.toISOString().split('T')[0];
+
+  showModal(`<div class="modal" onclick="event.stopPropagation()" style="max-width:540px;">
+    <div class="modal-header"><span class="modal-title">📋 New Quotation</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Client *</label>
+        <select class="form-input" id="qt-client">
+          <option value="">— Select Client —</option>
+          ${db.clients.filter(c=>c.status==='Active').map(c=>`<option value="${c.id}">${escHtml(c.business||c.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Service Description *</label>
+        <textarea class="form-input" id="qt-desc" rows="3" placeholder="e.g. SECP Annual Return Filing FY 2024-25, Tax Advisory Services..."></textarea>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Amount (PKR) *</label><input type="number" class="form-input" id="qt-amount" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Valid Until</label><input type="date" class="form-input" id="qt-expiry" value="${expiryStr}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="qt-notes" placeholder="Optional terms or notes"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button>
+      <button class="btn btn-secondary" onclick="saveQuotation('draft')">Save as Draft</button>
+      <button class="btn btn-primary" onclick="saveQuotation('pdf')">Generate PDF</button>
+    </div>
+  </div>`);
+}
+
+function saveQuotation(action){
+  const db=getDB();
+  const clientId=document.getElementById('qt-client').value;
+  const desc=document.getElementById('qt-desc').value.trim();
+  const amount=Number(document.getElementById('qt-amount').value)||0;
+  const expiry=document.getElementById('qt-expiry').value;
+  const notes=document.getElementById('qt-notes').value.trim();
+
+  if(!clientId){showToast('Please select a client','error');return;}
+  if(!desc){showToast('Description is required','error');return;}
+  if(!amount){showToast('Amount is required','error');return;}
+
+  const cl=db.clients.find(c=>c.id===clientId);
+  const qNo='QUO-'+Date.now().toString().slice(-6);
+  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  const expiryFmt=expiry?new Date(expiry).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}):'';
+
+  // Save as draft billing entry
+  const entry={id:uid(),clientId,amount,date:new Date().toISOString().split('T')[0],description:desc,status:'Quotation',isQuotation:true,quotationNo:qNo,expiryDate:expiry,notes,created:new Date().toISOString()};
+  db.billing.push(entry);
+  logAudit(`Created quotation ${qNo} for ${cl?.business||cl?.name}`,'Billing');
+  saveDB(db);
+
+  if(action==='pdf'||action==='both'){
+    const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Quotation ${qNo}</title><style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:'Arial',sans-serif;color:#1a1a1a;background:#fff;padding:40px;}
+      .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;padding-bottom:20px;border-bottom:3px solid #6D2077;}
+      .firm-name{font-size:22px;font-weight:700;color:#6D2077;letter-spacing:1px;}
+      .firm-sub{font-size:12px;color:#666;margin-top:4px;}
+      .qt-title{text-align:right;}
+      .qt-title h1{font-size:32px;font-weight:300;color:#6D2077;letter-spacing:4px;}
+      .qt-title .qt-no{font-size:13px;color:#666;margin-top:4px;}
+      .qt-title .qt-date{font-size:13px;color:#666;}
+      .parties{display:flex;justify-content:space-between;margin-bottom:40px;}
+      .party h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px;}
+      .party p{font-size:13px;line-height:1.6;}
+      .party .name{font-weight:600;font-size:15px;color:#1a1a1a;}
+      table{width:100%;border-collapse:collapse;margin-bottom:30px;}
+      thead tr{background:#6D2077;color:#fff;}
+      thead th{padding:12px 16px;text-align:left;font-size:12px;font-weight:600;letter-spacing:0.5px;}
+      tbody tr{border-bottom:1px solid #eee;}
+      tbody td{padding:14px 16px;font-size:13px;}
+      .totals{margin-left:auto;width:280px;}
+      .total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:#555;}
+      .total-row.grand{border-top:2px solid #6D2077;margin-top:8px;padding-top:12px;font-size:16px;font-weight:700;color:#6D2077;}
+      .validity{margin-top:30px;padding:16px;background:#f9f5ff;border-left:4px solid #6D2077;border-radius:4px;}
+      .validity p{font-size:13px;color:#444;line-height:1.6;}
+      .footer{margin-top:60px;padding-top:20px;border-top:1px solid #eee;display:flex;justify-content:space-between;}
+      .footer-left{font-size:11px;color:#999;}
+      .footer-right{font-size:12px;color:#6D2077;font-weight:600;}
+      @media print{body{padding:20px;}}
+    </style></head><body>
+    <div class="header">
+      <div>
+        <div class="firm-name">A. RAHEEM CONSULTANT</div>
+        <div class="firm-sub">Tax & Corporate Compliance | FBR | SECP</div>
+        <div class="firm-sub" style="margin-top:2px;">araheem.consultant@gmail.com</div>
+      </div>
+      <div class="qt-title">
+        <h1>QUOTATION</h1>
+        <div class="qt-no"># ${qNo}</div>
+        <div class="qt-date">Date: ${today}</div>
+      </div>
+    </div>
+    <div class="parties">
+      <div class="party">
+        <h3>Prepared For</h3>
+        <p class="name">${escHtml(cl?.business||cl?.name||'—')}</p>
+        <p>${escHtml(cl?.name||'')}</p>
+        ${cl?.ntn?`<p>NTN: ${escHtml(cl.ntn)}</p>`:''}
+        ${cl?.contact?`<p>${escHtml(cl.contact)}</p>`:''}
+        ${cl?.email?`<p>${escHtml(cl.email)}</p>`:''}
+      </div>
+      <div class="party" style="text-align:right;">
+        <h3>Prepared By</h3>
+        <p class="name">A. Raheem Consultant</p>
+        <p>CA Finalist</p>
+        <p>araheem.consultant@gmail.com</p>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Description of Services</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>${escHtml(desc)}</td><td>PKR ${Number(amount).toLocaleString()}</td></tr>
+      </tbody>
+    </table>
+    <div class="totals">
+      <div class="total-row"><span>Subtotal</span><span>PKR ${Number(amount).toLocaleString()}</span></div>
+      <div class="total-row grand"><span>Total Quoted</span><span>PKR ${Number(amount).toLocaleString()}</span></div>
+    </div>
+    ${expiry?`<div class="validity"><p><strong>Validity:</strong> This quotation is valid until <strong>${expiryFmt}</strong>. Prices are subject to change after this date.</p>${notes?`<p style="margin-top:8px;"><strong>Notes:</strong> ${escHtml(notes)}</p>`:''}</div>`:''}
+    <div class="footer">
+      <div class="footer-left">Thank you for considering A. Raheem Consultant.<br>This is a quotation — not a tax invoice.</div>
+      <div class="footer-right">A. Raheem Consultant</div>
+    </div>
+    </body></html>`;
+
+    const win=window.open('','_blank');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(()=>win.print(),500);
+  }
+
+  closeModalForce();renderBilling();showToast(`Quotation ${qNo} saved as draft`,'success');
+}
+
+function convertQuotationToInvoice(id){
+  const db=getDB();
+  const idx=db.billing.findIndex(b=>b.id===id);
+  if(idx<0) return;
+  db.billing[idx].status='Pending';
+  db.billing[idx].isQuotation=false;
+  db.billing[idx].convertedAt=new Date().toISOString();
+  logAudit(`Converted quotation ${db.billing[idx].quotationNo||id} to invoice`,'Billing');
+  saveDB(db);renderBilling();showToast('Quotation converted to invoice','success');
 }
 
 // ==================== CALENDAR ====================
@@ -1664,7 +1892,8 @@ function deleteSECP(id){confirmDelete('Delete this SECP record?',`function(){con
 function renderBillingActions(){
   document.getElementById('topbar-actions').innerHTML=`
     <button class="btn btn-primary" onclick="openBillingModal()">+ Manual Entry</button>
-    <button class="btn btn-secondary btn-sm" onclick="generateBillingFromTasks();navigate('billing')">💰 Bill Tasks</button>
+    <button class="btn btn-secondary btn-sm" onclick="openQuotationModal()">📋 New Quotation</button>
+    <button class="btn btn-secondary btn-sm" onclick="generateBillingFromTasks()">💰 Bill Tasks</button>
     <button class="btn btn-secondary btn-sm" onclick="exportBilling()">Export</button>
   `;
 }
@@ -1695,14 +1924,15 @@ function renderBilling(){
             return `<tr>
               <td><div style="font-weight:500;font-size:13px;">${escHtml(cl?.business||cl?.name||'—')}</div></td>
               <td style="font-size:13px;max-width:220px;">${escHtml(b.description||'—')}${linkedTask?`<div style="font-size:10px;color:var(--teal);margin-top:2px;">🔗 ${escHtml(linkedTask.title)}</div>`:''}</td>
-              <td class="td-mono" style="font-weight:500;">${fmtPKR(b.amount)}</td>
+              <td class="td-mono private-val" style="font-weight:500;">${fmtPKR(b.amount)}</td>
               <td style="font-size:12px;">${fmt(b.date)}</td>
               <td>${b.isTaskLinked?'<span class="badge badge-teal">Task</span>':'<span class="badge badge-gray">Manual</span>'}</td>
-              <td>${statusBadge(b.status)}</td>
+              <td>${b.isQuotation?'<span class="badge badge-purple">Quotation</span>':statusBadge(b.status)}</td>
               <td>
                 <div style="display:flex;gap:6px;">
-                  ${b.status==='Pending'?`<button class="btn btn-ghost btn-sm" onclick="markBillingReceived('${b.id}')" style="color:var(--green);font-size:11px;">✓ Received</button>`:''}
-                  <button class="btn btn-ghost btn-sm btn-icon" title="Generate Invoice" onclick="generateInvoicePDF('${b.id}')">🧾</button>
+                  ${b.isQuotation?`<button class="btn btn-ghost btn-sm" onclick="convertQuotationToInvoice('${b.id}')" style="color:var(--green);font-size:11px;">→ Convert to Invoice</button>`:''}
+                  ${b.status==='Pending'&&!b.isQuotation?`<button class="btn btn-ghost btn-sm" onclick="markBillingReceived('${b.id}')" style="color:var(--green);font-size:11px;">✓ Received</button>`:''}
+                  <button class="btn btn-ghost btn-sm btn-icon" title="Generate Invoice" onclick="${b.isQuotation?`saveQuotation('pdf')`:`generateInvoicePDF('${b.id}')`}">🧾</button>
                   <button class="btn btn-ghost btn-sm btn-icon" onclick="openBillingModal('${b.id}')">✏️</button>
                   <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteBilling('${b.id}')">🗑</button>
                 </div>
@@ -1771,7 +2001,7 @@ function renderDocuments(){
           <td><span class="badge badge-${tagCol}">${escHtml(d.tag)}</span></td>
           <td style="font-size:12px;">${fmt(d.uploaded)}</td>
           <td style="font-size:12px;color:var(--text3);">${escHtml(d.notes||'—')}</td>
-          <td><div style="display:flex;gap:6px;">${d.fileData?`<button class="btn btn-ghost btn-sm btn-icon" onclick="downloadDoc('${d.id}')" title="Download">⬇️</button>`:''}<button class="btn btn-ghost btn-sm btn-icon" onclick="deleteDoc('${d.id}')">🗑</button></div></td>
+          <td><div style="display:flex;gap:6px;">${d.fileData?`<button class="btn btn-ghost btn-sm btn-icon" onclick="previewDoc('${d.id}')" title="Preview">👁</button><button class="btn btn-ghost btn-sm btn-icon" onclick="downloadDoc('${d.id}')" title="Download">⬇️</button>`:''}<button class="btn btn-ghost btn-sm btn-icon" onclick="deleteDoc('${d.id}')">🗑</button></div></td>
         </tr>`;}).join('')}
       </tbody>
     </table></div>`}`;
@@ -1833,6 +2063,54 @@ function downloadDoc(id){
   const db=getDB();const d=db.documents.find(x=>x.id===id);
   if(!d?.fileData){showToast('No file stored for this document','error');return;}
   const a=document.createElement('a');a.href=d.fileData;a.download=d.fileName||d.name;a.click();
+}
+
+function previewDoc(id){
+  const db=getDB();const d=db.documents.find(x=>x.id===id);
+  if(!d?.fileData){showToast('No file stored for this document','error');return;}
+
+  // Remove any existing overlay
+  document.getElementById('doc-preview-overlay')?.remove();
+
+  const overlay=document.createElement('div');
+  overlay.id='doc-preview-overlay';
+  overlay.className='doc-preview-overlay';
+
+  const ext=(d.fileName||'').split('.').pop()?.toLowerCase();
+  const isImage=['png','jpg','jpeg','gif','webp'].includes(ext);
+  const isPdf=ext==='pdf';
+
+  let contentHtml='';
+  if(isImage){
+    contentHtml=`<img src="${d.fileData}" alt="${escHtml(d.name)}">`;
+  } else if(isPdf){
+    contentHtml=`<iframe src="${d.fileData}" title="${escHtml(d.name)}"></iframe>`;
+  } else {
+    contentHtml=`<div style="background:var(--bg2);padding:40px;border-radius:12px;text-align:center;max-width:400px;">
+      <div style="font-size:48px;margin-bottom:16px;">📄</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:8px;">${escHtml(d.name)}</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:20px;">${escHtml(d.fileName||'')} — Preview not available for this file type</div>
+      <button class="btn btn-primary" onclick="downloadDoc('${id}')">⬇️ Download File</button>
+    </div>`;
+  }
+
+  overlay.innerHTML=`
+    <div class="doc-preview-topbar">
+      <div class="doc-preview-title">📄 ${escHtml(d.name)}</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-secondary btn-sm" onclick="downloadDoc('${id}')">⬇️ Download</button>
+        <button class="doc-preview-close" onclick="document.getElementById('doc-preview-overlay').remove()">×</button>
+      </div>
+    </div>
+    <div class="doc-preview-body">${contentHtml}</div>`;
+
+  // Close on backdrop click (outside topbar/body content)
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  // Close on Escape
+  overlay.addEventListener('keydown',e=>{if(e.key==='Escape')overlay.remove();});
+
+  document.body.appendChild(overlay);
+  overlay.focus();
 }
 
 // ==================== INVOICE PDF ====================
@@ -2292,29 +2570,73 @@ function setTheme(theme){
 
 function applyTheme(theme){
   const root=document.documentElement;
-  if(theme==='light'){
-    root.style.setProperty('--bg','#f5f5f7');
-    root.style.setProperty('--bg2','#ffffff');
-    root.style.setProperty('--bg3','#f0f0f5');
-    root.style.setProperty('--bg4','#e8e8ef');
-    root.style.setProperty('--border','#dde0e8');
-    root.style.setProperty('--text1','#0f1117');
-    root.style.setProperty('--text2','#374151');
-    root.style.setProperty('--text3','#6b7280');
-  } else if(theme==='dark'){
-    root.style.setProperty('--bg','#0f1117');
-    root.style.setProperty('--bg2','#161b27');
-    root.style.setProperty('--bg3','#1e2535');
-    root.style.setProperty('--bg4','#252d40');
-    root.style.setProperty('--border','#2a3347');
-    root.style.setProperty('--text1','#f1f5f9');
-    root.style.setProperty('--text2','#cbd5e1');
-    root.style.setProperty('--text3','#64748b');
-  } else {
-    // System — use media query
-    const prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
-    applyTheme(prefersDark?'dark':'light');
-    return;
+  const setDark=()=>{
+    root.style.setProperty('--bg','#120D1A');
+    root.style.setProperty('--bg2','#1C1028');
+    root.style.setProperty('--bg3','#251535');
+    root.style.setProperty('--bg4','#2E1A40');
+    root.style.setProperty('--surface','#251535');
+    root.style.setProperty('--surface2','#2E1A40');
+    root.style.setProperty('--surface3','#3D2550');
+    root.style.setProperty('--border','#3D2550');
+    root.style.setProperty('--border2','#5A3570');
+    root.style.setProperty('--text','#F0EAF5');
+    root.style.setProperty('--text1','#F0EAF5');
+    root.style.setProperty('--text2','#C4A8D4');
+    root.style.setProperty('--text3','#8B6A9B');
+    root.style.setProperty('--accent','#6D2077');
+    root.style.setProperty('--accent2','#9B4F9F');
+    root.style.setProperty('--accentglow','rgba(109,32,119,0.20)');
+    root.style.setProperty('--purple','#C084D4');
+    root.style.setProperty('--purple2','rgba(192,132,212,0.15)');
+    root.style.setProperty('--shadow','0 4px 20px rgba(0,0,0,0.5)');
+    root.style.setProperty('--shadow2','0 2px 8px rgba(0,0,0,0.4)');
+    root.style.setProperty('--green2','rgba(34,197,94,0.12)');
+    root.style.setProperty('--red2','rgba(239,68,68,0.12)');
+    root.style.setProperty('--yellow2','rgba(245,158,11,0.12)');
+    root.style.setProperty('--teal2','rgba(20,184,166,0.12)');
+    root.style.setProperty('--orange2','rgba(249,115,22,0.12)');
+    document.body.style.background='#120D1A';
+    document.body.style.color='#F0EAF5';
+  };
+  const setLight=()=>{
+    root.style.setProperty('--bg','#F2F2F5');
+    root.style.setProperty('--bg2','#FFFFFF');
+    root.style.setProperty('--bg3','#F5F5F8');
+    root.style.setProperty('--bg4','#EBEBEF');
+    root.style.setProperty('--surface','#FFFFFF');
+    root.style.setProperty('--surface2','#F5F5F8');
+    root.style.setProperty('--surface3','#EBEBEF');
+    root.style.setProperty('--border','#E0DDE6');
+    root.style.setProperty('--border2','#C8C4D0');
+    root.style.setProperty('--text','#111111');
+    root.style.setProperty('--text1','#111111');
+    root.style.setProperty('--text2','#444444');
+    root.style.setProperty('--text3','#777777');
+    root.style.setProperty('--accent','#6D2077');
+    root.style.setProperty('--accent2','#9B4F9F');
+    root.style.setProperty('--accentglow','rgba(109,32,119,0.08)');
+    root.style.setProperty('--purple','#6D2077');
+    root.style.setProperty('--purple2','rgba(109,32,119,0.08)');
+    root.style.setProperty('--shadow','0 4px 20px rgba(0,0,0,0.08)');
+    root.style.setProperty('--shadow2','0 2px 8px rgba(0,0,0,0.06)');
+    root.style.setProperty('--green2','rgba(22,163,74,0.10)');
+    root.style.setProperty('--red2','rgba(220,38,38,0.10)');
+    root.style.setProperty('--yellow2','rgba(217,119,6,0.10)');
+    root.style.setProperty('--teal2','rgba(13,148,136,0.10)');
+    root.style.setProperty('--orange2','rgba(234,88,12,0.10)');
+    document.body.style.background='#F2F2F5';
+    document.body.style.color='#111111';
+  };
+  if(theme==='light') setLight();
+  else if(theme==='dark') setDark();
+  else{
+    const mq=window.matchMedia('(prefers-color-scheme: dark)');
+    mq.matches?setDark():setLight();
+    mq.addEventListener('change',e=>{
+      const db=getDB();
+      if((db.settings?.theme||'system')==='system') e.matches?setDark():setLight();
+    });
   }
 }
 
