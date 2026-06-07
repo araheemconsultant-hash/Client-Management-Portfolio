@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>A. Raheem Consultant — Client Tracker</title>
+<title>CMP — Client Management Portfolio</title>
 
 <!-- ===== PWA META TAGS ===== -->
 <meta name="application-name" content="Client Tracker">
@@ -54,10 +54,10 @@
   <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-mark">
-        <div class="logo-icon">AR</div>
+        <div class="logo-icon">CMP</div>
         <div>
-          <div class="logo-text">A. Raheem Consultant</div>
-          <div class="logo-sub">Client Tracker — FBR & SECP</div>
+          <div class="logo-text">Client Management Portfolio</div>
+          <div class="logo-sub">A. Raheem Consultant</div>
         </div>
       </div>
     </div>
@@ -123,6 +123,10 @@
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
           Audit Log
         </div>
+        <div class="nav-item" onclick="navigate('settings')" id="nav-settings">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Settings
+        </div>
       </div>
     </nav>
 
@@ -141,14 +145,10 @@
 
   <!-- MAIN -->
   <div class="main" id="main-content">
-    <!-- Drive Status Bar -->
-    <div class="drive-bar" id="drive-bar">
-      <div class="drive-dot" id="drive-dot"></div>
-      <span class="drive-label" id="drive-label">☁️ Google Drive: Connecting…</span>
-      <button class="btn btn-ghost btn-sm" id="drive-refresh-btn" onclick="refreshFromDrive()" style="font-size:11px;padding:3px 8px;display:none;" title="Pull latest data from Drive">↻ Refresh</button>
-      <button class="btn btn-secondary btn-sm" id="drive-btn" onclick="handleDriveConnect()" style="font-size:11px;padding:4px 10px;">Connecting…</button>
-      <button class="btn btn-ghost btn-sm" id="privacy-btn" onclick="togglePrivacy()" title="Toggle privacy mode" style="font-size:16px;padding:3px 8px;">👁️</button>
-    </div>
+  <!-- Drive Disconnect Banner (only shows when disconnected) -->
+  <div class="drive-disconnect-banner" id="drive-disconnect-banner" style="display:none;">
+    ⚠️ Google Drive disconnected — data is saving locally only. <button onclick="navigate('settings')" style="background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;font-size:12px;">Go to Settings to reconnect</button>
+  </div>
 
     <div class="topbar">
       <div class="menu-btn" onclick="toggleSidebar()">
@@ -156,6 +156,10 @@
       </div>
       <div class="topbar-title" id="topbar-title">Dashboard</div>
       <div class="topbar-actions" id="topbar-actions"></div>
+      <button class="btn btn-ghost btn-sm" id="privacy-btn" onclick="togglePrivacy()" title="Toggle privacy mode" style="padding:6px 8px;margin-left:4px;">
+        <svg id="privacy-icon-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        <svg id="privacy-icon-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+      </button>
     </div>
 
     <div class="page" id="page-content"></div>
@@ -497,10 +501,15 @@
   .toast.info{border-color:rgba(79,142,247,.3);background:var(--accentglow);color:var(--accent);}
 
   /* PRIVACY MODE */
-  .privacy-on .private-val{filter:blur(6px);user-select:none;transition:filter .2s;}
-  .privacy-on .private-val:hover{filter:blur(0);}
-  #privacy-btn{font-size:16px;padding:3px 8px;transition:opacity .2s;}
-  .privacy-on #privacy-btn{opacity:0.5;}
+  .privacy-on .private-val{color:transparent!important;text-shadow:0 0 8px var(--text2);user-select:none;transition:all .2s;position:relative;}
+  .privacy-on .private-val::after{content:'PKR ••••••';position:absolute;left:0;top:0;color:var(--text2);font-size:inherit;}
+  .privacy-on .stat-value.private-val::after{content:'••••••';}
+  .privacy-on .private-val:hover{color:inherit!important;text-shadow:none;}
+  .privacy-on .private-val:hover::after{display:none;}
+  #privacy-btn{transition:opacity .2s;}
+
+  /* DRIVE DISCONNECT BANNER */
+  .drive-disconnect-banner{background:#7c2d12;color:#fecaca;padding:8px 20px;font-size:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;}
 </style>
 </head>
 <body>
@@ -579,6 +588,10 @@
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
           Audit Log
         </div>
+        <div class="nav-item" onclick="navigate('settings')" id="nav-settings">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Settings
+        </div>
       </div>
     </nav>
 
@@ -597,13 +610,6 @@
 
   <!-- MAIN -->
   <div class="main" id="main-content">
-    <div class="topbar">
-      <div class="menu-btn" onclick="toggleSidebar()">
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-      </div>
-      <div class="topbar-title" id="topbar-title">Dashboard</div>
-      <div class="topbar-actions" id="topbar-actions"></div>
-    </div>
 
     <div class="page" id="page-content"></div>
   </div>
@@ -845,30 +851,14 @@ async function refreshFromDrive() {
 }
 
 function updateDriveUI(connected) {
-  const dot = document.getElementById('drive-dot');
-  const label = document.getElementById('drive-label');
-  const btn = document.getElementById('drive-btn');
-  const refresh = document.getElementById('drive-refresh-btn');
-  if (!dot) return;
-  if (connected) {
-    dot.className = 'drive-dot connected';
-    label.className = 'drive-label connected';
-    label.innerHTML = '☁️ Google Drive: <strong>Connected</strong> — araheem.consultant@gmail.com — Auto-syncing';
-    btn.textContent = 'Disconnect';
-    if (refresh) refresh.style.display = '';
-  } else {
-    dot.className = 'drive-dot';
-    label.className = 'drive-label';
-    label.innerHTML = '☁️ Google Drive: <strong style="color:var(--red)">Not Connected</strong> — Click to connect and sync across all devices';
-    btn.textContent = 'Connect Drive';
-    if (refresh) refresh.style.display = 'none';
-  }
+  const banner = document.getElementById('drive-disconnect-banner');
+  if (banner) banner.style.display = connected ? 'none' : 'flex';
+  // Store state for settings page
+  window._driveConnected = connected;
 }
 
 function setSyncing(v) {
-  const dot = document.getElementById('drive-dot');
-  if (!driveAccessToken || !dot) return;
-  dot.className = 'drive-dot ' + (v ? 'syncing' : 'connected');
+  // no-op — drive bar removed; syncing is silent
 }
 
 function bootApp(driveConnected) {
@@ -876,7 +866,12 @@ function bootApp(driveConnected) {
   appReady = true;
   updateDriveUI(driveConnected);
   applyPrivacy();
-  const db = getDB();
+  // Apply saved theme
+  const db=getDB();
+  applyTheme(db.settings?.theme||'system');
+  // Apply users module visibility
+  const usersEnabled=db.settings?.usersEnabled||false;
+  document.querySelectorAll('#nav-users').forEach(el=>el.style.display=usersEnabled?'':'none');
   const cu = db.currentUser;
   if (cu) {
     document.getElementById('current-user-name').textContent = cu.name;
@@ -910,13 +905,13 @@ function navigate(page) {
   const navEl = document.getElementById('nav-'+page);
   if(navEl) navEl.classList.add('active');
   currentPage = page;
-  const titles = {dashboard:'Dashboard',clients:'Clients',tasks:'Tasks',calendar:'Calendar',fbr:'FBR Module',secp:'SECP Module',billing:'Billing & Income',documents:'Documents',users:'Users',audit:'Audit Log',leads:'Potential Clients'};
+  const titles = {dashboard:'Dashboard',clients:'Clients',tasks:'Tasks',calendar:'Calendar',fbr:'FBR Module',secp:'SECP Module',billing:'Billing & Income',documents:'Documents',users:'Users',audit:'Audit Log',leads:'Potential Clients',settings:'Settings'};
   document.getElementById('topbar-title').textContent = titles[page]||page;
   const content = document.getElementById('page-content');
   content.className = 'page fade-in';
   void content.offsetWidth;
   content.className = 'page fade-in';
-  const pages = {dashboard:renderDashboard,clients:renderClients,tasks:renderTasks,calendar:renderCalendar,fbr:renderFBR,secp:renderSECP,billing:renderBilling,documents:renderDocuments,users:renderUsers,audit:renderAudit,leads:renderLeads};
+  const pages = {dashboard:renderDashboard,clients:renderClients,tasks:renderTasks,calendar:renderCalendar,fbr:renderFBR,secp:renderSECP,billing:renderBilling,documents:renderDocuments,users:renderUsers,audit:renderAudit,leads:renderLeads,settings:renderSettings};
   const actions = {clients:renderClientsActions,tasks:renderTasksActions,fbr:renderFBRActions,secp:renderSECPActions,billing:renderBillingActions,documents:renderDocumentsActions,users:renderUsersActions,leads:renderLeadsActions};
   document.getElementById('topbar-actions').innerHTML='';
   if(actions[page]) actions[page]();
@@ -1119,13 +1114,13 @@ function renderClients() {
         <input type="text" placeholder="Search clients..." value="${escHtml(clientSearch)}" oninput="clientSearch=this.value;renderClients()">
       </div>
       <div class="tabs" style="margin-bottom:0;">
-        ${['All','Individual','AOP','Company','Active','Inactive'].map(f=>`<div class="tab ${clientFilter===f?'active':''}" onclick="clientFilter='${f}';renderClients()">${f}</div>`).join('')}
+        ${['All','Individual','AOP','Company','Active','Inactive','Ex-Client'].map(f=>`<div class="tab ${clientFilter===f?'active':''}" onclick="clientFilter='${f}';renderClients()">${f}</div>`).join('')}
       </div>
     </div>
     ${clients.length===0?`<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No clients found</div><br><button class="btn btn-primary" onclick="openClientModal()">+ Add Client</button></div>`:`
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Client</th><th>Type</th><th>NTN / CNIC</th><th>Contact</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Client</th><th>Type</th><th>Services</th><th>NTN / CNIC</th><th>Contact</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
           ${clients.map(c=>`<tr>
             <td>
@@ -1138,9 +1133,10 @@ function renderClients() {
               </div>
             </td>
             <td><span class="badge badge-blue">${escHtml(c.type)}</span></td>
+            <td><span class="badge ${c.services==='Both'?'badge-purple':c.services==='SECP'?'badge-teal':'badge-blue'}">${escHtml(c.services||'FBR')}</span></td>
             <td><div class="td-mono">${escHtml(c.ntn||'—')}</div><div style="font-size:11px;color:var(--text3);">${escHtml(c.cnic||'—')}</div></td>
             <td><div style="font-size:13px;">${escHtml(c.contact||'—')}</div><div style="font-size:11px;color:var(--text3);">${escHtml(c.email||'—')}</div></td>
-            <td><span class="td-mono">${fmtPKR(c.fee)}</span></td>
+            <td><span class="td-mono private-val">${fmtPKR(c.fee)}</span></td>
             <td>${statusBadge(c.status)}</td>
             <td>
               <div style="display:flex;gap:6px;">
@@ -1170,7 +1166,8 @@ function openClientModal(id) {
         <div class="form-group"><label class="form-label">Contact</label><input class="form-input" id="cf-contact" placeholder="+92 300 1234567" value="${escHtml(c?.contact||'')}"></div>
         <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="cf-email" placeholder="client@email.com" value="${escHtml(c?.email||'')}"></div>
         <div class="form-group"><label class="form-label">Client Type *</label><select class="form-input" id="cf-type"><option ${c?.type==='Individual'?'selected':''}>Individual</option><option ${c?.type==='AOP'?'selected':''}>AOP</option><option ${c?.type==='Company'?'selected':''}>Company</option></select></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="cf-status"><option ${c?.status==='Active'||!c?'selected':''}>Active</option><option ${c?.status==='Inactive'?'selected':''}>Inactive</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="cf-status"><option ${c?.status==='Active'||!c?'selected':''}>Active</option><option ${c?.status==='Inactive'?'selected':''}>Inactive</option><option ${c?.status==='Ex-Client'?'selected':''}>Ex-Client</option></select></div>
+        <div class="form-group"><label class="form-label">Services *</label><select class="form-input" id="cf-services"><option value="FBR" ${c?.services==='FBR'||!c?'selected':''}>FBR Only</option><option value="SECP" ${c?.services==='SECP'?'selected':''}>SECP Only</option><option value="Both" ${c?.services==='Both'?'selected':''}>Both FBR & SECP</option></select></div>
         <div class="form-group"><label class="form-label">Engagement Start</label><input type="date" class="form-input" id="cf-start" value="${c?.engagementStart||''}"></div>
         <div class="form-group"><label class="form-label">Annual Fee (PKR)</label><input type="number" class="form-input" id="cf-fee" placeholder="100000" value="${c?.fee||''}"></div>
       </div>
@@ -1185,7 +1182,7 @@ function openClientModal(id) {
 
 function saveClient(id) {
   const db=getDB();
-  const data={name:document.getElementById('cf-name').value.trim(),business:document.getElementById('cf-business').value.trim(),cnic:document.getElementById('cf-cnic').value.trim(),ntn:document.getElementById('cf-ntn').value.trim(),contact:document.getElementById('cf-contact').value.trim(),email:document.getElementById('cf-email').value.trim(),type:document.getElementById('cf-type').value,status:document.getElementById('cf-status').value,engagementStart:document.getElementById('cf-start').value,fee:Number(document.getElementById('cf-fee').value)||0,notes:document.getElementById('cf-notes').value.trim()};
+  const data={name:document.getElementById('cf-name').value.trim(),business:document.getElementById('cf-business').value.trim(),cnic:document.getElementById('cf-cnic').value.trim(),ntn:document.getElementById('cf-ntn').value.trim(),contact:document.getElementById('cf-contact').value.trim(),email:document.getElementById('cf-email').value.trim(),type:document.getElementById('cf-type').value,status:document.getElementById('cf-status').value,services:document.getElementById('cf-services').value,engagementStart:document.getElementById('cf-start').value,fee:Number(document.getElementById('cf-fee').value)||0,notes:document.getElementById('cf-notes').value.trim()};
   if(!data.name){showToast('Name is required','error');return;}
   if(id){const idx=db.clients.findIndex(c=>c.id===id);db.clients[idx]={...db.clients[idx],...data};logAudit(`Updated client: ${data.name}`,'Clients');}
   else{data.id=uid();data.created=new Date().toISOString();db.clients.push(data);logAudit(`Added client: ${data.name}`,'Clients');}
@@ -1515,8 +1512,11 @@ function renderFBRActions() {
 }
 function renderFBR() {
   const db=getDB();
+  // Only show FBR records for clients with FBR or Both services
+  const fbrClientIds=new Set(db.clients.filter(c=>!c.services||c.services==='FBR'||c.services==='Both').map(c=>c.id));
+  const fbrRecords=db.fbr.filter(f=>fbrClientIds.has(f.clientId));
   const flags=[];
-  db.fbr.forEach(f=>{
+  fbrRecords.forEach(f=>{
     const cl=db.clients.find(c=>c.id===f.clientId);
     if(cl?.status==='Active'){
       if(f.ntnStatus!=='Active') flags.push({client:cl.business||cl.name,msg:'Inactive NTN',level:'red'});
@@ -1529,8 +1529,8 @@ function renderFBR() {
       <table>
         <thead><tr><th>Client</th><th>NTN</th><th>NTN Status</th><th>ATL</th><th>STRN</th><th>Sales Tax</th><th>Returns</th><th>Actions</th></tr></thead>
         <tbody>
-          ${db.fbr.length===0?`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text3);">No FBR records yet.</td></tr>`:''}
-          ${db.fbr.map(f=>{const cl=db.clients.find(c=>c.id===f.clientId);return `<tr>
+          ${fbrRecords.length===0?`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text3);">No FBR records yet. Add a client with FBR services first.</td></tr>`:''}
+          ${fbrRecords.map(f=>{const cl=db.clients.find(c=>c.id===f.clientId);return `<tr>
             <td><div style="font-weight:500;font-size:13px;">${escHtml(cl?.business||cl?.name||'—')}</div><div style="font-size:11px;color:var(--text3);">${escHtml(cl?.type||'')}</div></td>
             <td class="td-mono">${escHtml(f.ntn||'—')}</td>
             <td>${statusBadge(f.ntnStatus)}</td>
@@ -1601,12 +1601,15 @@ function addFiling(fbrId){
 function renderSECPActions(){document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-primary" onclick="openSECPModal()">+ Add SECP Record</button>`;}
 function renderSECP(){
   const db=getDB();
+  // Only show SECP records for clients with SECP or Both services
+  const secpClientIds=new Set(db.clients.filter(c=>c.services==='SECP'||c.services==='Both').map(c=>c.id));
+  const secpRecords=db.secp.filter(s=>secpClientIds.has(s.clientId));
   document.getElementById('page-content').innerHTML=`
-    ${db.secp.length===0?`<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No SECP records</div><br><button class="btn btn-primary" onclick="openSECPModal()">+ Add Record</button></div>`:`
+    ${secpRecords.length===0?`<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No SECP records</div><div style="font-size:13px;color:var(--text3);margin-top:8px;">Add a client with SECP services first</div><br><button class="btn btn-primary" onclick="openSECPModal()">+ Add Record</button></div>`:`
     <div class="table-wrap"><table>
       <thead><tr><th>Company</th><th>CUIN</th><th>Type</th><th>Directors</th><th>Filings</th><th>Actions</th></tr></thead>
       <tbody>
-        ${db.secp.map(s=>{const cl=db.clients.find(c=>c.id===s.clientId);const pending=s.filings?.filter(f=>f.status==='Pending').length||0;return `<tr>
+        ${secpRecords.map(s=>{const cl=db.clients.find(c=>c.id===s.clientId);const pending=s.filings?.filter(f=>f.status==='Pending').length||0;return `<tr>
           <td><div style="font-weight:500;font-size:13px;">${escHtml(s.companyName)}</div><div style="font-size:11px;color:var(--text3);">${escHtml(cl?.name||'—')}</div></td>
           <td class="td-mono">${escHtml(s.cuin||'—')}</td>
           <td><span class="badge badge-blue">${escHtml(s.companyType)}</span></td>
@@ -1699,6 +1702,7 @@ function renderBilling(){
               <td>
                 <div style="display:flex;gap:6px;">
                   ${b.status==='Pending'?`<button class="btn btn-ghost btn-sm" onclick="markBillingReceived('${b.id}')" style="color:var(--green);font-size:11px;">✓ Received</button>`:''}
+                  <button class="btn btn-ghost btn-sm btn-icon" title="Generate Invoice" onclick="generateInvoicePDF('${b.id}')">🧾</button>
                   <button class="btn btn-ghost btn-sm btn-icon" onclick="openBillingModal('${b.id}')">✏️</button>
                   <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteBilling('${b.id}')">🗑</button>
                 </div>
@@ -1767,7 +1771,7 @@ function renderDocuments(){
           <td><span class="badge badge-${tagCol}">${escHtml(d.tag)}</span></td>
           <td style="font-size:12px;">${fmt(d.uploaded)}</td>
           <td style="font-size:12px;color:var(--text3);">${escHtml(d.notes||'—')}</td>
-          <td><button class="btn btn-ghost btn-sm btn-icon" onclick="deleteDoc('${d.id}')">🗑</button></td>
+          <td><div style="display:flex;gap:6px;">${d.fileData?`<button class="btn btn-ghost btn-sm btn-icon" onclick="downloadDoc('${d.id}')" title="Download">⬇️</button>`:''}<button class="btn btn-ghost btn-sm btn-icon" onclick="deleteDoc('${d.id}')">🗑</button></div></td>
         </tr>`;}).join('')}
       </tbody>
     </table></div>`}`;
@@ -1775,29 +1779,149 @@ function renderDocuments(){
 function openDocModal(){
   const db=getDB();
   showModal(`<div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header"><span class="modal-title">Add Document Record</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-header"><span class="modal-title">Upload Document</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">Document Name *</label><input class="form-input" id="df-name" placeholder="e.g. Tax Return FY 2024-25"></div>
       <div class="form-group"><label class="form-label">Client</label><select class="form-input" id="df-client"><option value="">—Select—</option>${db.clients.map(c=>`<option value="${c.id}">${escHtml(c.business||c.name)}</option>`).join('')}</select></div>
       <div class="form-grid">
         <div class="form-group"><label class="form-label">Tag</label><select class="form-input" id="df-tag"><option>FBR</option><option>SECP</option><option>Legal</option><option>General</option></select></div>
-        <div class="form-group"><label class="form-label">File Type</label><select class="form-input" id="df-type"><option>PDF</option><option>Image</option><option>Excel</option><option>Word</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">File</label><input type="file" class="form-input" id="df-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="padding:6px;"></div>
       </div>
       <div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="df-notes" placeholder="Optional notes"></div>
-      ${driveAccessToken?`<div class="alert alert-green" style="margin-top:8px;">☁️ Drive connected — this record will sync automatically to araheem.consultant@gmail.com</div>`:`<div class="alert alert-blue" style="margin-top:8px;">☁️ Connect Google Drive to enable auto-sync of document records.</div>`}
+      <div id="df-preview" style="margin-top:8px;font-size:12px;color:var(--text3);"></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button><button class="btn btn-primary" onclick="saveDoc()">Save Record</button></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button><button class="btn btn-primary" onclick="saveDoc()">Upload</button></div>
   </div>`);
+  // Preview file name when selected
+  setTimeout(()=>{
+    const fi=document.getElementById('df-file');
+    if(fi) fi.addEventListener('change',()=>{
+      const f=fi.files[0];
+      if(f){
+        document.getElementById('df-preview').textContent=`Selected: ${f.name} (${(f.size/1024).toFixed(1)} KB)`;
+        if(!document.getElementById('df-name').value) document.getElementById('df-name').value=f.name.replace(/\.[^.]+$/,'');
+      }
+    });
+  },100);
 }
 function saveDoc(){
   const db=getDB();
-  const data={name:document.getElementById('df-name').value.trim(),clientId:document.getElementById('df-client').value,tag:document.getElementById('df-tag').value,type:document.getElementById('df-type').value,notes:document.getElementById('df-notes').value.trim(),uploaded:new Date().toISOString()};
-  if(!data.name){showToast('Document name is required','error');return;}
-  data.id=uid();db.documents.push(data);logAudit(`Added document: ${data.name}`,'Documents');
-  saveDB(db);closeModalForce();renderDocuments();showToast('Document record saved','success');
+  const fileInput=document.getElementById('df-file');
+  const file=fileInput?.files[0];
+  const name=document.getElementById('df-name').value.trim();
+  if(!name){showToast('Document name is required','error');return;}
+  const ext=file?.name.split('.').pop()?.toUpperCase()||'';
+  const typeMap={PDF:'PDF',DOC:'Word',DOCX:'Word',XLS:'Excel',XLSX:'Excel',PNG:'Image',JPG:'Image',JPEG:'Image'};
+  const data={id:uid(),name,clientId:document.getElementById('df-client').value,tag:document.getElementById('df-tag').value,type:typeMap[ext]||'Other',notes:document.getElementById('df-notes').value.trim(),uploaded:new Date().toISOString(),fileName:file?.name||'',fileSize:file?Math.round(file.size/1024):0};
+  if(file){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      data.fileData=e.target.result;
+      db.documents.push(data);
+      logAudit(`Uploaded document: ${data.name}`,'Documents');
+      saveDB(db);closeModalForce();renderDocuments();showToast('Document uploaded','success');
+    };
+    reader.readAsDataURL(file);
+  } else {
+    db.documents.push(data);
+    logAudit(`Added document record: ${data.name}`,'Documents');
+    saveDB(db);closeModalForce();renderDocuments();showToast('Document record saved','success');
+  }
 }
-function deleteDoc(id){confirmDelete('Delete this document record?',`function(){const db=getDB();const d=db.documents.find(x=>x.id==='${id}');db.documents=db.documents.filter(x=>x.id!=='${id}');logAudit('Deleted document: '+(d?.name||''),'Documents');saveDB(db);renderDocuments();}`);}
+function deleteDoc(id){confirmDelete('Delete this document?',`function(){const db=getDB();const d=db.documents.find(x=>x.id==='${id}');db.documents=db.documents.filter(x=>x.id!=='${id}');logAudit('Deleted document: '+(d?.name||''),'Documents');saveDB(db);renderDocuments();}`);}
+function downloadDoc(id){
+  const db=getDB();const d=db.documents.find(x=>x.id===id);
+  if(!d?.fileData){showToast('No file stored for this document','error');return;}
+  const a=document.createElement('a');a.href=d.fileData;a.download=d.fileName||d.name;a.click();
+}
 
+// ==================== INVOICE PDF ====================
+function generateInvoicePDF(billingId){
+  const db=getDB();const b=db.billing.find(x=>x.id===billingId);
+  if(!b){showToast('Billing record not found','error');return;}
+  const cl=db.clients.find(c=>c.id===b.clientId);
+  const invNo='INV-'+Date.now().toString().slice(-6);
+  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice ${invNo}</title><style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Arial',sans-serif;color:#1a1a1a;background:#fff;padding:40px;}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;padding-bottom:20px;border-bottom:3px solid #1e3a5f;}
+    .firm-name{font-size:22px;font-weight:700;color:#1e3a5f;letter-spacing:1px;}
+    .firm-sub{font-size:12px;color:#666;margin-top:4px;}
+    .inv-title{text-align:right;}
+    .inv-title h1{font-size:32px;font-weight:300;color:#1e3a5f;letter-spacing:4px;}
+    .inv-title .inv-no{font-size:13px;color:#666;margin-top:4px;}
+    .inv-title .inv-date{font-size:13px;color:#666;}
+    .parties{display:flex;justify-content:space-between;margin-bottom:40px;}
+    .party h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px;}
+    .party p{font-size:13px;line-height:1.6;}
+    .party .name{font-weight:600;font-size:15px;color:#1a1a1a;}
+    table{width:100%;border-collapse:collapse;margin-bottom:30px;}
+    thead tr{background:#1e3a5f;color:#fff;}
+    thead th{padding:12px 16px;text-align:left;font-size:12px;font-weight:600;letter-spacing:0.5px;}
+    tbody tr{border-bottom:1px solid #eee;}
+    tbody td{padding:14px 16px;font-size:13px;}
+    tbody tr:last-child{border-bottom:none;}
+    .totals{margin-left:auto;width:280px;}
+    .total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:#555;}
+    .total-row.grand{border-top:2px solid #1e3a5f;margin-top:8px;padding-top:12px;font-size:16px;font-weight:700;color:#1e3a5f;}
+    .status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:${b.status==='Received'?'#d1fae5;color:#065f46':'#fef3c7;color:#92400e'};}
+    .footer{margin-top:60px;padding-top:20px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;}
+    .footer-left{font-size:11px;color:#999;}
+    .footer-right{font-size:12px;color:#1e3a5f;font-weight:600;}
+    @media print{body{padding:20px;}}
+  </style></head><body>
+  <div class="header">
+    <div>
+      <div class="firm-name">A. RAHEEM CONSULTANT</div>
+      <div class="firm-sub">Tax & Corporate Compliance | FBR | SECP</div>
+      <div class="firm-sub" style="margin-top:2px;">araheem.consultant@gmail.com</div>
+    </div>
+    <div class="inv-title">
+      <h1>INVOICE</h1>
+      <div class="inv-no"># ${invNo}</div>
+      <div class="inv-date">Date: ${today}</div>
+    </div>
+  </div>
+  <div class="parties">
+    <div class="party">
+      <h3>Bill To</h3>
+      <p class="name">${escHtml(cl?.business||cl?.name||'—')}</p>
+      <p>${escHtml(cl?.name||'')}</p>
+      ${cl?.ntn?`<p>NTN: ${escHtml(cl.ntn)}</p>`:''}
+      ${cl?.contact?`<p>${escHtml(cl.contact)}</p>`:''}
+      ${cl?.email?`<p>${escHtml(cl.email)}</p>`:''}
+    </div>
+    <div class="party" style="text-align:right;">
+      <h3>Status</h3>
+      <span class="status-badge">${b.status}</span>
+      ${b.status==='Received'&&b.receivedDate?`<p style="font-size:12px;color:#666;margin-top:6px;">Received: ${fmt(b.receivedDate)}</p>`:''}
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th>Description</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>${escHtml(b.description||'Professional Services')}</td><td>PKR ${Number(b.amount||0).toLocaleString()}</td></tr>
+    </tbody>
+  </table>
+  <div class="totals">
+    <div class="total-row"><span>Subtotal</span><span>PKR ${Number(b.amount||0).toLocaleString()}</span></div>
+    <div class="total-row grand"><span>Total Due</span><span>PKR ${Number(b.amount||0).toLocaleString()}</span></div>
+  </div>
+  <div class="footer">
+    <div class="footer-left">Thank you for your business.<br>This is a computer-generated invoice.</div>
+    <div class="footer-right">A. Raheem Consultant</div>
+  </div>
+  </body></html>`;
+
+  const win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(),500);
+  logAudit(`Generated invoice ${invNo} for ${cl?.business||cl?.name}`,'Billing');
+}
 // ==================== POTENTIAL CLIENTS (LEADS) ====================
 let leadSearch='',leadFilter='All';
 
@@ -1973,8 +2097,10 @@ function exportLeads(){
 let privacyOn = localStorage.getItem('ct_privacy') === '1';
 function applyPrivacy(){
   document.getElementById('app').classList.toggle('privacy-on', privacyOn);
-  const btn = document.getElementById('privacy-btn');
-  if(btn) btn.textContent = privacyOn ? '🔒' : '👁️';
+  const showIcon = document.getElementById('privacy-icon-show');
+  const hideIcon = document.getElementById('privacy-icon-hide');
+  if(showIcon) showIcon.style.display = privacyOn ? 'none' : 'block';
+  if(hideIcon) hideIcon.style.display = privacyOn ? 'block' : 'none';
 }
 function togglePrivacy(){
   privacyOn = !privacyOn;
@@ -2081,6 +2207,127 @@ async function importWebLeads(){
   }
 
   if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+}
+
+// ==================== SETTINGS ====================
+function renderSettings(){
+  const db=getDB();
+  const driveConnected=!!driveAccessToken;
+  const usersEnabled=db.settings?.usersEnabled||false;
+  const theme=db.settings?.theme||'system';
+  document.getElementById('page-content').innerHTML=`
+    <div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:20px;">
+
+      <!-- APPEARANCE -->
+      <div class="stat-card" style="padding:20px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Appearance</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Choose how CMP looks on your device</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          ${[{val:'system',label:'System Default',icon:'💻'},{val:'dark',label:'Dark Mode',icon:'🌙'},{val:'light',label:'Light Mode',icon:'☀️'}].map(t=>`
+            <div onclick="setTheme('${t.val}')" style="flex:1;min-width:140px;padding:14px;border:2px solid ${theme===t.val?'var(--accent)':'var(--border)'};border-radius:10px;cursor:pointer;text-align:center;background:${theme===t.val?'var(--accentglow)':'var(--bg3)'};">
+              <div style="font-size:22px;margin-bottom:6px;">${t.icon}</div>
+              <div style="font-size:13px;font-weight:500;">${t.label}</div>
+              ${theme===t.val?'<div style="font-size:11px;color:var(--accent);margin-top:4px;">Active</div>':''}
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- GOOGLE DRIVE -->
+      <div class="stat-card" style="padding:20px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Google Drive Sync</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Sync your data across all devices</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="width:10px;height:10px;border-radius:50%;background:${driveConnected?'var(--green)':'var(--red)'};flex-shrink:0;"></div>
+          <div style="flex:1;font-size:13px;">${driveConnected?'Connected — araheem.consultant@gmail.com':'Not connected — data is saving locally only'}</div>
+          <button class="btn ${driveConnected?'btn-secondary':'btn-primary'} btn-sm" onclick="handleDriveConnect()">${driveConnected?'Disconnect':'Connect Drive'}</button>
+          ${driveConnected?`<button class="btn btn-ghost btn-sm" onclick="refreshFromDrive()">↻ Refresh</button>`:''}
+        </div>
+      </div>
+
+      <!-- PRIVACY -->
+      <div class="stat-card" style="padding:20px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Privacy Mode</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Hide financial figures — toggle anytime using the eye icon in the topbar</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="flex:1;font-size:13px;">Privacy mode is currently <strong>${privacyOn?'ON — financials are hidden':'OFF — financials are visible'}</strong></div>
+          <button class="btn btn-secondary btn-sm" onclick="togglePrivacy();renderSettings();">${privacyOn?'Turn Off':'Turn On'}</button>
+        </div>
+      </div>
+
+      <!-- USERS MODULE -->
+      <div class="stat-card" style="padding:20px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Multi-User Mode</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Enable to add team members with their own access. When off, only you can make changes.</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="flex:1;font-size:13px;">Multi-user mode is <strong>${usersEnabled?'enabled':'disabled'}</strong></div>
+          <button class="btn btn-secondary btn-sm" onclick="toggleUsersModule()">${usersEnabled?'Disable':'Enable'}</button>
+        </div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="stat-card" style="padding:20px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">About CMP</div>
+        <div style="font-size:12px;color:var(--text3);line-height:1.8;">
+          <div><strong>Client Management Portfolio (CMP)</strong></div>
+          <div>A. Raheem Consultant</div>
+          <div>FBR & SECP Compliance Management</div>
+          <div style="margin-top:8px;color:var(--text3);">Version 2.0 — Built for Pakistani CA practice</div>
+        </div>
+      </div>
+
+    </div>`;
+
+  // Apply theme CSS on load
+  applyTheme(theme);
+}
+
+function setTheme(theme){
+  const db=getDB();
+  if(!db.settings) db.settings={};
+  db.settings.theme=theme;
+  saveDB(db);
+  applyTheme(theme);
+  renderSettings();
+}
+
+function applyTheme(theme){
+  const root=document.documentElement;
+  if(theme==='light'){
+    root.style.setProperty('--bg','#f5f5f7');
+    root.style.setProperty('--bg2','#ffffff');
+    root.style.setProperty('--bg3','#f0f0f5');
+    root.style.setProperty('--bg4','#e8e8ef');
+    root.style.setProperty('--border','#dde0e8');
+    root.style.setProperty('--text1','#0f1117');
+    root.style.setProperty('--text2','#374151');
+    root.style.setProperty('--text3','#6b7280');
+  } else if(theme==='dark'){
+    root.style.setProperty('--bg','#0f1117');
+    root.style.setProperty('--bg2','#161b27');
+    root.style.setProperty('--bg3','#1e2535');
+    root.style.setProperty('--bg4','#252d40');
+    root.style.setProperty('--border','#2a3347');
+    root.style.setProperty('--text1','#f1f5f9');
+    root.style.setProperty('--text2','#cbd5e1');
+    root.style.setProperty('--text3','#64748b');
+  } else {
+    // System — use media query
+    const prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark?'dark':'light');
+    return;
+  }
+}
+
+function toggleUsersModule(){
+  const db=getDB();
+  if(!db.settings) db.settings={};
+  db.settings.usersEnabled=!db.settings.usersEnabled;
+  saveDB(db);
+  // Show/hide Users nav item
+  const navUsers=document.querySelectorAll('#nav-users');
+  navUsers.forEach(el=>el.style.display=db.settings.usersEnabled?'':'none');
+  renderSettings();
+  showToast(db.settings.usersEnabled?'Multi-user mode enabled':'Multi-user mode disabled — solo mode active','success');
 }
 
 // ==================== USERS ====================
