@@ -2281,6 +2281,17 @@ function openLeadModal(id){
       <div class="form-group"><label class="form-label">Required Services (comma separated)</label><input class="form-input" id="lf-services" placeholder="NTN Registration, Tax Returns, SECP Compliance" value="${escHtml(l?.services||'')}"></div>
       <div class="form-group"><label class="form-label">Estimated Value (PKR)</label><input type="number" class="form-input" id="lf-value" placeholder="0" value="${l?.estimatedValue||''}"></div>
       <div class="form-group"><label class="form-label">Notes / Follow-up</label><textarea class="form-input" id="lf-notes" placeholder="Any relevant notes, follow-up actions...">${escHtml(l?.notes||'')}</textarea></div>
+      ${(l?.filingType||l?.companyType||l?.bizNature||l?.submittedAt)?`
+      <div style="margin-top:8px;padding:12px 14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">📋 Website Submission Details</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--text2);">
+          ${l?.submittedAt?`<div><span style="color:var(--text3);">Submitted:</span> ${escHtml(l.submittedAt)}</div>`:''}
+          ${l?.filingType&&l.filingType!=='N/A'?`<div><span style="color:var(--text3);">Filing Type:</span> <span style="color:var(--accent);font-weight:500;">${escHtml(l.filingType)}</span></div>`:''}
+          ${l?.companyType&&l.companyType!=='N/A'?`<div><span style="color:var(--text3);">Company Type:</span> <span style="color:var(--accent);font-weight:500;">${escHtml(l.companyType)}</span></div>`:''}
+          ${l?.bizNature&&l.bizNature!=='N/A'?`<div><span style="color:var(--text3);">Business Nature:</span> <span style="color:var(--accent);font-weight:500;">${escHtml(l.bizNature)}</span></div>`:''}
+          ${l?.source?`<div><span style="color:var(--text3);">Source:</span> ${escHtml(l.source)}</div>`:''}
+        </div>
+      </div>`:''}
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button><button class="btn btn-primary" onclick="saveLead('${id||''}')">Save Lead</button></div>
   </div>`);
