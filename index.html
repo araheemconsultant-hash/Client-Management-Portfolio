@@ -2401,9 +2401,9 @@ async function importWebLeads(){
 
   try{
     // Read sheet values via Sheets API
-    const range='Sheet1!A2:F1000'; // skip header row, cols A-F
+    const range='Sheet1!A2:J1000'; // skip header row, cols A-J
     const sheetsRes=await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tax%20Return%20Data!A2:F1000`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tax%20Return%20Data!A2:J1000`,
       {headers:{Authorization:`Bearer ${driveAccessToken}`}}
     );
 
@@ -2438,33 +2438,36 @@ async function importWebLeads(){
     let newCount=0;
 
     rows.forEach(row=>{
-      const timestamp = row[0]||'';
-      const name      = row[1]||'Unknown';
-      const phone     = row[2]||'';
-      const email     = row[3]||'';
-      const filingType= row[4]||'';
-      const message   = row[5]||'';
+      const timestamp=row[0]||'';
+      const name=row[1]||'Unknown';
+      const phone=row[2]||'';
+      const email=row[3]||'';
+      const message=row[9]||'';
 
       if(!timestamp) return; // skip empty rows
       if(imported.has(timestamp)) return; // already imported
 
-      const lead={
-        id: uid(),
-        name: name,
-        contactName: name,
-        company: '',
-        email: email,
-        phone: phone,
-        services: filingType,
-        status: 'warm',
-        notes: message,
-        estimatedValue: 0,
-        source: 'Tax Filing Website',
-        submittedAt: timestamp,
-        created: new Date().toISOString()
+      const normalised={
+        id:uid(),
+        name:timestamp+'-'+phone,
+        contactName:name,
+        company:'',
+        email:email,
+        phone:phone,
+        services:row[4]||'Tax Filing',
+        filingType:row[5]||'',
+        companyType:row[6]||'',
+        bizNature:row[7]||'',
+        timeline:row[8]||'',
+        notes:message,
+        estimatedValue:0,
+        source:'Website — '+(row[4]||'Tax Filing'),
+        submittedAt:timestamp,
+        status:'warm',
+        created:new Date().toISOString()
       };
 
-      db.leads.unshift(lead);
+      db.leads.unshift(normalised);
       db.importedTimestamps.push(timestamp);
       newCount++;
     });
