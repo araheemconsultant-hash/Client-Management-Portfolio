@@ -2244,7 +2244,7 @@ function renderLeads(){
                 ${l.phone?`<div style="font-size:12px;color:var(--text2);">📞 ${escHtml(l.phone)}</div>`:''}
                 ${l.contactName&&l.name!==l.contactName?`<div style="font-size:12px;color:var(--text2);">👤 ${escHtml(l.contactName)}</div>`:''}
               </div>
-              ${l.services?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;">${l.services.split(',').map(s=>`<span class="badge badge-purple" style="font-size:10px;">${escHtml(s.trim())}</span>`).join('')}</div>`:''}
+              ${l.services?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;">${l.services.split(',').map(s=>`<span class="badge badge-purple" style="font-size:10px;">${escHtml(s.trim())}</span>`).join('')}${l.filingType&&l.filingType!=='N/A'?`<span class="badge badge-blue" style="font-size:10px;">${escHtml(l.filingType)}</span>`:''}${l.companyType&&l.companyType!=='N/A'?`<span class="badge badge-teal" style="font-size:10px;">${escHtml(l.companyType)}</span>`:''}${l.bizNature&&l.bizNature!=='N/A'?`<span class="badge badge-gray" style="font-size:10px;">${escHtml(l.bizNature)}</span>`:''}</div>`:''}
               ${l.notes?`<div style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic;">"${escHtml(l.notes)}"</div>`:''}
               ${l.submittedAt?`<div style="font-size:11px;color:var(--text3);margin-top:4px;">🕐 Submitted: ${escHtml(l.submittedAt)}</div>`:''}            </div>
           </div>
@@ -2401,9 +2401,9 @@ async function importWebLeads(){
 
   try{
     // Read sheet values via Sheets API
-    const range='Sheet1!A2:J1000'; // skip header row, cols A-J
+    const range='Sheet1!A3:J1000'; // skip 2 header rows, cols A-J
     const sheetsRes=await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tax%20Return%20Data!A2:J1000`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tax%20Return%20Data!A3:J1000`,
       {headers:{Authorization:`Bearer ${driveAccessToken}`}}
     );
 
@@ -2445,9 +2445,11 @@ const email      = row[3]||'';
 const serviceType= row[4]||'Tax Filing';
 const isTax      = serviceType.toLowerCase().includes('tax');
 const filingType = isTax ? (row[5]||'') : '';
-const message    = isTax ? (row[6]||'') : (row[9]||'');
+const taxMessage = isTax ? (row[6]||'') : '';
 const companyType= !isTax ? (row[7]||'') : '';
 const bizNature  = !isTax ? (row[8]||'') : '';
+const seсpMessage= !isTax ? (row[9]||'') : '';
+const message    = isTax ? taxMessage : seсpMessage;
 
       if(!timestamp) return; // skip empty rows
       if(imported.has(timestamp)) return; // already imported
@@ -2455,17 +2457,17 @@ const bizNature  = !isTax ? (row[8]||'') : '';
       const normalised={
         id:uid(),
         name:name,
-contactName:name,
+        contactName:name,
         company:'',
         email:email,
         phone:phone,
         services:serviceType,
-filingType:filingType,
-companyType:companyType,
-bizNature:bizNature,
+        filingType:filingType,
+        companyType:companyType,
+        bizNature:bizNature,
         notes:message,
         estimatedValue:0,
-        source:'Website — '+(row[4]||'Tax Filing'),
+        source:'Website - '+serviceType,
         submittedAt:timestamp,
         status:'warm',
         created:new Date().toISOString()
