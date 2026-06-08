@@ -2438,27 +2438,31 @@ async function importWebLeads(){
     let newCount=0;
 
     rows.forEach(row=>{
-      const timestamp=row[0]||'';
-      const name=row[1]||'Unknown';
-      const phone=row[2]||'';
-      const email=row[3]||'';
-      const message=row[9]||'';
+      const timestamp  = row[0]||'';
+const name       = row[1]||'Unknown';
+const phone      = row[2]||'';
+const email      = row[3]||'';
+const serviceType= row[4]||'Tax Filing';
+const isTax      = serviceType.toLowerCase().includes('tax');
+const filingType = isTax ? (row[5]||'') : '';
+const message    = isTax ? (row[6]||'') : (row[9]||'');
+const companyType= !isTax ? (row[7]||'') : '';
+const bizNature  = !isTax ? (row[8]||'') : '';
 
       if(!timestamp) return; // skip empty rows
       if(imported.has(timestamp)) return; // already imported
 
       const normalised={
         id:uid(),
-        name:timestamp+'-'+phone,
-        contactName:name,
+        name:name,
+contactName:name,
         company:'',
         email:email,
         phone:phone,
-        services:row[4]||'Tax Filing',
-        filingType:row[5]||'',
-        companyType:row[6]||'',
-        bizNature:row[7]||'',
-        timeline:row[8]||'',
+        services:serviceType,
+filingType:filingType,
+companyType:companyType,
+bizNature:bizNature,
         notes:message,
         estimatedValue:0,
         source:'Website — '+(row[4]||'Tax Filing'),
