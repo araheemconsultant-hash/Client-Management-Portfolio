@@ -108,6 +108,14 @@
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
           Billing
         </div>
+        <div class="nav-item" onclick="navigate('expenses')" id="nav-expenses">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg>
+          Expenses
+        </div>
+        <div class="nav-item" onclick="navigate('expenses')" id="nav-expenses">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg>
+          Expenses
+        </div>
         <div class="nav-item" onclick="navigate('documents')" id="nav-documents">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
           Documents
@@ -199,7 +207,7 @@
   .app{display:flex;min-height:100vh}
   .sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .25s cubic-bezier(.4,0,.2,1)}
   .sidebar.collapsed{transform:translateX(-240px)}
-  .main{flex:1;margin-left:240px;min-height:100vh;display:flex;flex-direction:column;transition:margin-left .25s cubic-bezier(.4,0,.2,1)}
+  .main{flex:1;margin-left:240px;min-height:100vh;display:flex;flex-direction:column;transition:margin-left .25s cubic-bezier(.4,0,.2,1);overflow-x:hidden;min-width:0;}
   .main.full{margin-left:0}
   @media(max-width:768px){.sidebar{transform:translateX(-240px)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}}
 
@@ -263,7 +271,7 @@
   .stat-sub{font-size:12px;color:var(--text3)}
 
   /* TABLE */
-  .table-wrap{overflow-x:auto;border-radius:var(--radius2);border:1px solid var(--border)}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius2);border:1px solid var(--border);max-width:100%;}
   table{width:100%;border-collapse:collapse;font-size:13.5px}
   th{background:var(--bg3);color:var(--text3);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:10px 14px;text-align:left;white-space:nowrap}
   td{padding:11px 14px;border-top:1px solid var(--border);color:var(--text);vertical-align:middle}
@@ -675,7 +683,8 @@ function scheduleDriveSync(db) {
 function freshDB() {
   const db = {
     clients: [], fbr: [], secp: [], tasks: [], billing: [],
-    documents: [], leads: [],
+    documents: [], leads: [], expenses: [], quickNotes: '',
+    importedTimestamps: [],
     users: [{id:'u1', name:'A. Raheem', email:'araheem.consultant@gmail.com', role:'admin', initials:'AR', active:true, created:new Date().toISOString()}],
     audit: [{id:uid(), action:'Portal initialized — A. Raheem Consultant', user:'A. Raheem', time:new Date().toISOString(), module:'System'}],
     currentUser: {id:'u1', name:'A. Raheem', role:'admin', initials:'AR'},
@@ -687,10 +696,20 @@ function freshDB() {
 
 function uid() { return Math.random().toString(36).substr(2,9)+Date.now().toString(36); }
 
+function getDeviceInfo(){
+  const ua=navigator.userAgent;
+  if(/iPhone/i.test(ua)) return 'iPhone';
+  if(/iPad/i.test(ua)) return 'iPad';
+  if(/Android/i.test(ua)) return 'Android';
+  if(/Windows/i.test(ua)) return 'Windows PC';
+  if(/Mac/i.test(ua)) return 'Mac';
+  return 'Unknown Device';
+}
+
 function logAudit(action, module='General') {
   const db=getDB();
-  db.audit.unshift({id:uid(), action, user:db.currentUser?.name||'A. Raheem', time:new Date().toISOString(), module});
-  if(db.audit.length>200) db.audit=db.audit.slice(0,200);
+  db.audit.unshift({id:uid(), action, user:db.currentUser?.name||'A. Raheem', device:getDeviceInfo(), time:new Date().toISOString(), module});
+  if(db.audit.length>500) db.audit=db.audit.slice(0,500);
   saveDB(db);
 }
 
@@ -925,14 +944,14 @@ function navigate(page) {
   const navEl = document.getElementById('nav-'+page);
   if(navEl) navEl.classList.add('active');
   currentPage = page;
-  const titles = {dashboard:'Dashboard',clients:'Clients',tasks:'Tasks',calendar:'Calendar',fbr:'FBR Module',secp:'SECP Module',billing:'Billing & Income',documents:'Documents',users:'Users',audit:'Audit Log',leads:'Potential Clients',settings:'Settings'};
+  const titles = {dashboard:'Dashboard',clients:'Clients',tasks:'Tasks',calendar:'Calendar',fbr:'FBR Module',secp:'SECP Module',billing:'Billing & Income',documents:'Documents',users:'Users',audit:'Audit Log',leads:'Potential Clients',settings:'Settings',expenses:'Expenses'};
   document.getElementById('topbar-title').textContent = titles[page]||page;
   const content = document.getElementById('page-content');
   content.className = 'page fade-in';
   void content.offsetWidth;
   content.className = 'page fade-in';
-  const pages = {dashboard:renderDashboard,clients:renderClients,tasks:renderTasks,calendar:renderCalendar,fbr:renderFBR,secp:renderSECP,billing:renderBilling,documents:renderDocuments,users:renderUsers,audit:renderAudit,leads:renderLeads,settings:renderSettings};
-  const actions = {clients:renderClientsActions,tasks:renderTasksActions,fbr:renderFBRActions,secp:renderSECPActions,billing:renderBillingActions,documents:renderDocumentsActions,users:renderUsersActions,leads:renderLeadsActions};
+  const pages = {dashboard:renderDashboard,clients:renderClients,tasks:renderTasks,calendar:renderCalendar,fbr:renderFBR,secp:renderSECP,billing:renderBilling,documents:renderDocuments,users:renderUsers,audit:renderAudit,leads:renderLeads,settings:renderSettings,expenses:renderExpenses};
+  const actions = {clients:renderClientsActions,tasks:renderTasksActions,fbr:renderFBRActions,secp:renderSECPActions,billing:renderBillingActions,documents:renderDocumentsActions,users:renderUsersActions,leads:renderLeadsActions,expenses:renderExpensesActions};
   document.getElementById('topbar-actions').innerHTML='';
   if(actions[page]) actions[page]();
   if(pages[page]) pages[page]();
@@ -1108,11 +1127,22 @@ function renderDashboard() {
           </div>`).join('')||'<div class="empty" style="padding:16px 0;"><div class="empty-text">No hot leads</div><div class="empty-sub"><button class="btn btn-ghost btn-sm" onclick="navigate(\'leads\')">Add leads →</button></div></div>'}
       </div>
     </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="section-header"><div class="section-title">📝 Quick Notes</div><span style="font-size:11px;color:var(--text3);">Auto-saved</span></div>
+      <textarea id="quick-notes-pad" placeholder="Jot down quick thoughts, reminders, or anything on your mind..." style="width:100%;min-height:100px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;color:var(--text);resize:vertical;font-family:var(--font);" oninput="saveQuickNotes(this.value)">${escHtml(db.quickNotes||'')}</textarea>
+    </div>
   `;
 }
 
 // ==================== CLIENTS ====================
 let clientSearch='',clientStatusFilter='All',clientTypeFilter='All';
+let _clientSearchTimer=null;
+function clientSearchInput(val){
+  clientSearch=val;
+  clearTimeout(_clientSearchTimer);
+  _clientSearchTimer=setTimeout(()=>renderClientsTable(),150);
+}
 
 function renderClientsActions() {
   document.getElementById('topbar-actions').innerHTML=`
@@ -1123,36 +1153,46 @@ function renderClientsActions() {
 
 function renderClients() {
   const db=getDB();
-  let clients=db.clients;
-  if(clientSearch) clients=clients.filter(c=>(c.name+c.business+c.ntn+c.cnic+c.contact).toLowerCase().includes(clientSearch.toLowerCase()));
-  if(clientStatusFilter!=='All') clients=clients.filter(c=>c.status===clientStatusFilter);
-  if(clientTypeFilter!=='All') clients=clients.filter(c=>c.type===clientTypeFilter);
-
   document.getElementById('page-content').innerHTML=`
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <div class="search-bar" style="flex:1;min-width:180px;">
         <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Search clients..." value="${escHtml(clientSearch)}" oninput="clientSearch=this.value;renderClients()">
+        <input type="text" id="client-search-input" placeholder="Search clients..." value="${escHtml(clientSearch)}" oninput="clientSearchInput(this.value)" autocomplete="off">
       </div>
-      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;" onchange="clientStatusFilter=this.value;renderClients()">
+      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;" onchange="clientStatusFilter=this.value;renderClientsTable()">
         ${['All','Active','Inactive'].map(f=>`<option value="${f}" ${clientStatusFilter===f?'selected':''}>${f==='All'?'All Status':f}</option>`).join('')}
       </select>
-      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;" onchange="clientTypeFilter=this.value;renderClients()">
+      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;" onchange="clientTypeFilter=this.value;renderClientsTable()">
         ${['All','Individual','AOP','Company'].map(f=>`<option value="${f}" ${clientTypeFilter===f?'selected':''}>${f==='All'?'All Types':f}</option>`).join('')}
       </select>
     </div>
-    ${clients.length===0?`<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No clients found</div><br><button class="btn btn-primary" onclick="openClientModal()">+ Add Client</button></div>`:`
+    <div id="clients-table-container"></div>`;
+  renderClientsTable();
+}
+
+function renderClientsTable(){
+  const db=getDB();
+  let clients=db.clients;
+  if(clientSearch) clients=clients.filter(c=>(c.name+c.business+c.ntn+c.cnic+c.contact+(c.tags||[]).join('')).toLowerCase().includes(clientSearch.toLowerCase()));
+  if(clientStatusFilter!=='All') clients=clients.filter(c=>c.status===clientStatusFilter);
+  if(clientTypeFilter!=='All') clients=clients.filter(c=>c.type===clientTypeFilter);
+  // Pinned first
+  clients=clients.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  const cont=document.getElementById('clients-table-container');
+  if(!cont) return;
+  cont.innerHTML=clients.length===0?`<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No clients found</div><br><button class="btn btn-primary" onclick="openClientModal()">+ Add Client</button></div>`:`
     <div class="table-wrap">
       <table>
         <thead><tr><th>Client</th><th>Type</th><th>Services</th><th>NTN / CNIC</th><th>Contact</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
-          ${clients.map(c=>`<tr>
+          ${clients.map(c=>`<tr ${c.pinned?'style="background:var(--accentglow);"':''}>
             <td>
               <div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:32px;height:32px;border-radius:50%;background:var(--accentglow);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent);flex-shrink:0;">${(c.business||c.name||'?').charAt(0).toUpperCase()}</div>
                 <div>
-                  <div style="font-weight:500;font-size:13px;">${escHtml(c.business||c.name)}</div>
-                  <div style="font-size:11px;color:var(--text3);">${escHtml(c.name)}</div>
+                  <div style="font-weight:500;font-size:13px;">${c.pinned?'📌 ':''} ${escHtml(c.business||c.name)}</div>
+                  <div style="font-size:11px;color:var(--text3);">${escHtml(c.name)}${(c.tags||[]).length?` · ${c.tags.map(t=>`<span style="background:var(--bg4);padding:1px 6px;border-radius:10px;font-size:10px;">${escHtml(t)}</span>`).join(' ')}`:''}
+                  </div>
                 </div>
               </div>
             </td>
@@ -1164,6 +1204,7 @@ function renderClients() {
             <td>${statusBadge(c.status)}</td>
             <td>
               <div style="display:flex;gap:6px;">
+                <button class="btn btn-ghost btn-sm btn-icon" onclick="togglePinClient('${c.id}')" title="${c.pinned?'Unpin':'Pin'}">${c.pinned?'📌':'📍'}</button>
                 <button class="btn btn-ghost btn-sm btn-icon" onclick="viewClient('${c.id}')" title="View">👁</button>
                 <button class="btn btn-ghost btn-sm btn-icon" onclick="openClientModal('${c.id}')" title="Edit">✏️</button>
                 <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteClient('${c.id}')" title="Delete">🗑</button>
@@ -1172,8 +1213,7 @@ function renderClients() {
           </tr>`).join('')}
         </tbody>
       </table>
-    </div>`}
-  `;
+    </div>`;
 }
 
 function openClientModal(id) {
@@ -1195,6 +1235,7 @@ function openClientModal(id) {
         <div class="form-group"><label class="form-label">Engagement Start</label><input type="date" class="form-input" id="cf-start" value="${c?.engagementStart||''}"></div>
         <div class="form-group"><label class="form-label">Annual Fee (PKR)</label><input type="number" class="form-input" id="cf-fee" placeholder="100000" value="${c?.fee||''}"></div>
       </div>
+      <div class="form-group"><label class="form-label">Tags</label><input class="form-input" id="cf-tags" placeholder="e.g. VIP, Slow Payer, Referred (comma separated)" value="${escHtml((c?.tags||[]).join(', '))}"></div>
       <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" id="cf-notes" placeholder="Additional notes...">${escHtml(c?.notes||'')}</textarea></div>
     </div>
     <div class="modal-footer">
@@ -1206,7 +1247,21 @@ function openClientModal(id) {
 
 function saveClient(id) {
   const db=getDB();
-  const data={name:document.getElementById('cf-name').value.trim(),business:document.getElementById('cf-business').value.trim(),cnic:document.getElementById('cf-cnic').value.trim(),ntn:document.getElementById('cf-ntn').value.trim(),contact:document.getElementById('cf-contact').value.trim(),email:document.getElementById('cf-email').value.trim(),type:document.getElementById('cf-type').value,status:document.getElementById('cf-status').value,services:document.getElementById('cf-services').value,engagementStart:document.getElementById('cf-start').value,fee:Number(document.getElementById('cf-fee').value)||0,notes:document.getElementById('cf-notes').value.trim()};
+  const data={
+    name:document.getElementById('cf-name').value.trim(),
+    business:document.getElementById('cf-business').value.trim(),
+    cnic:document.getElementById('cf-cnic').value.trim(),
+    ntn:document.getElementById('cf-ntn').value.trim(),
+    contact:document.getElementById('cf-contact').value.trim(),
+    email:document.getElementById('cf-email').value.trim(),
+    type:document.getElementById('cf-type').value,
+    status:document.getElementById('cf-status').value,
+    services:document.getElementById('cf-services').value,
+    engagementStart:document.getElementById('cf-start').value,
+    fee:Number(document.getElementById('cf-fee').value)||0,
+    tags:document.getElementById('cf-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    notes:document.getElementById('cf-notes').value.trim()
+  };
   if(!data.name){showToast('Name is required','error');return;}
   if(id){const idx=db.clients.findIndex(c=>c.id===id);db.clients[idx]={...db.clients[idx],...data};logAudit(`Updated client: ${data.name}`,'Clients');}
   else{data.id=uid();data.created=new Date().toISOString();db.clients.push(data);logAudit(`Added client: ${data.name}`,'Clients');}
@@ -1225,6 +1280,16 @@ function deleteClient(id) {
     db.tasks=db.tasks.filter(x=>x.clientId!=='${id}');
     logAudit('Deleted client: '+name,'Clients');saveDB(db);renderClients();
   }`);
+}
+
+function togglePinClient(id){
+  const db=getDB();
+  const idx=db.clients.findIndex(c=>c.id===id);
+  if(idx<0) return;
+  db.clients[idx].pinned=!db.clients[idx].pinned;
+  saveDB(db);
+  renderClientsTable();
+  showToast(db.clients[idx].pinned?'Client pinned to top':'Client unpinned','success');
 }
 
 function viewClient(id) {
@@ -1255,6 +1320,8 @@ function viewClient(id) {
         <div class="tab" id="vt-secp" onclick="switchViewTab('secp')">SECP</div>
         <div class="tab" id="vt-tasks" onclick="switchViewTab('tasks')">Tasks (${tasks.length})</div>
         <div class="tab" id="vt-billing" onclick="switchViewTab('billing')">Billing</div>
+        <div class="tab" id="vt-notes" onclick="switchViewTab('notes')">Notes${(c.noteHistory||[]).length?' ('+((c.noteHistory||[]).length)+')':''}</div>
+        <div class="tab" id="vt-meetings" onclick="switchViewTab('meetings')">Meetings${(c.meetings||[]).length?' ('+((c.meetings||[]).length)+')':''}</div>
       </div>
       <div id="view-tab-content">
         <div class="form-grid">
@@ -1270,8 +1337,11 @@ function viewClient(id) {
         ${billableTotal>0?`<div class="billing-task-link">💰 Billable tasks total: <strong>${fmtPKR(billableTotal)}</strong> from ${billableTasks.length} task(s) — <span style="cursor:pointer;text-decoration:underline;" onclick="closeModalForce();navigate('billing')">View Billing →</span></div>`:''}
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModalForce()">Close</button>
+    <div class="modal-footer" style="flex-wrap:wrap;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="closeModalForce()">Close</button>
+      <button class="btn btn-secondary btn-sm" onclick="openReferralModal('${id}')">🤝 Referral</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeModalForce();openMeetingLogModal('${id}')">📅 Log Meeting</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeModalForce();openNotesHistoryModal('client','${id}')">📝 Add Note</button>
       <button class="btn btn-primary" onclick="closeModalForce();openClientModal('${id}')">Edit Client</button>
     </div>
   </div>`);
@@ -1299,7 +1369,13 @@ function switchViewTab(tab) {
   } else if(tab==='tasks'){
     cont.innerHTML=tasks.length?`<div class="table-wrap"><table><thead><tr><th>Task</th><th>Due</th><th>Priority</th><th>Status</th><th>Billable</th></tr></thead><tbody>${tasks.map(t=>`<tr><td style="font-size:13px;">${escHtml(t.title)}</td><td style="font-size:12px;">${fmt(t.dueDate)}</td><td>${priorityBadge(t.priority)}</td><td>${statusBadge(t.status)}</td><td>${t.billable?`<span class="badge badge-teal">💰 ${fmtPKR(t.billAmount)}</span>`:'<span class="badge badge-gray">—</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty" style="padding:20px 0;"><div class="empty-text">No tasks</div></div>';
   } else if(tab==='billing'){
-    cont.innerHTML=bills.length?`<div class="table-wrap"><table><thead><tr><th>Description</th><th>Amount</th><th>Date</th><th>Status</th><th>Source</th></tr></thead><tbody>${bills.map(b=>`<tr><td style="font-size:13px;">${escHtml(b.description)}</td><td class="td-mono">${fmtPKR(b.amount)}</td><td style="font-size:12px;">${fmt(b.date)}</td><td>${statusBadge(b.status)}</td><td>${b.isTaskLinked?'<span class="badge badge-teal">Task</span>':'<span class="badge badge-gray">Manual</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty" style="padding:20px 0;"><div class="empty-text">No billing records</div></div>';
+    cont.innerHTML=bills.length?`<div class="table-wrap"><table><thead><tr><th>Description</th><th>Amount</th><th>Date</th><th>Status</th><th>Source</th></tr></thead><tbody>${bills.map(b=>`<tr><td style="font-size:13px;">${escHtml(b.description)}</td><td class="td-mono private-val">${fmtPKR(b.amount)}</td><td style="font-size:12px;">${fmt(b.date)}</td><td>${statusBadge(b.status)}</td><td>${b.isTaskLinked?'<span class="badge badge-teal">Task</span>':'<span class="badge badge-gray">Manual</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty" style="padding:20px 0;"><div class="empty-text">No billing records</div></div>';
+  } else if(tab==='notes'){
+    const history=c.noteHistory||[];
+    cont.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:12px;"><input class="form-input" id="new-note-input" placeholder="Add a note..." style="flex:1;"><button class="btn btn-primary btn-sm" onclick="submitNewNote('client','${c.id}')">Add</button></div><div style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;">${history.length?history.map(n=>`<div style="padding:10px;background:var(--bg3);border-radius:8px;border-left:3px solid var(--accent);"><div style="font-size:13px;">${escHtml(n.note)}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">${escHtml(n.user)} · ${new Date(n.time).toLocaleString('en-PK',{timeZone:'Asia/Karachi',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>`).join(''):'<div style="color:var(--text3);text-align:center;padding:20px;">No notes yet</div>'}</div>`;
+  } else if(tab==='meetings'){
+    const meetings=c.meetings||[];
+    cont.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"><input class="form-input" id="mtg-date" type="date" value="${new Date().toISOString().split('T')[0]}"><input class="form-input" id="mtg-agenda" placeholder="Meeting agenda"><textarea class="form-input" id="mtg-outcome" placeholder="Outcome / next steps" rows="2"></textarea><button class="btn btn-primary btn-sm" onclick="saveMeeting('${c.id}')">+ Log Meeting</button></div><div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;">${meetings.length?meetings.map(m=>`<div style="padding:10px;background:var(--bg3);border-radius:8px;"><div style="font-size:12px;font-weight:600;color:var(--accent);">📅 ${fmt(m.date)}</div><div style="font-size:13px;margin-top:4px;">${escHtml(m.agenda)}</div>${m.outcome?`<div style="font-size:12px;color:var(--text3);margin-top:4px;">↳ ${escHtml(m.outcome)}</div>`:''}</div>`).join(''):'<div style="color:var(--text3);text-align:center;padding:20px;">No meetings logged</div>'}</div>`;
   }
 }
 
@@ -1894,6 +1970,7 @@ function renderBillingActions(){
     <button class="btn btn-primary" onclick="openBillingModal()">+ Manual Entry</button>
     <button class="btn btn-secondary btn-sm" onclick="openQuotationModal()">📋 New Quotation</button>
     <button class="btn btn-secondary btn-sm" onclick="generateBillingFromTasks()">💰 Bill Tasks</button>
+    <button class="btn btn-secondary btn-sm" onclick="showAgingReport()">📊 Aging</button>
     <button class="btn btn-secondary btn-sm" onclick="exportBilling()">Export</button>
   `;
 }
@@ -1931,7 +2008,7 @@ function renderBilling(){
               <td>
                 <div style="display:flex;gap:6px;">
                   ${b.isQuotation?`<button class="btn btn-ghost btn-sm" onclick="convertQuotationToInvoice('${b.id}')" style="color:var(--green);font-size:11px;">→ Convert to Invoice</button>`:''}
-                  ${b.status==='Pending'&&!b.isQuotation?`<button class="btn btn-ghost btn-sm" onclick="markBillingReceived('${b.id}')" style="color:var(--green);font-size:11px;">✓ Received</button>`:''}
+                  ${b.status==='Pending'&&!b.isQuotation?`<button class="btn btn-ghost btn-sm" onclick="markBillingReceived('${b.id}')" style="color:var(--green);font-size:11px;">✓ Received</button><button class="btn btn-ghost btn-sm" onclick="openPartialPaymentModal('${b.id}')" style="font-size:11px;">💵 Partial</button>`:''}
                   <button class="btn btn-ghost btn-sm btn-icon" title="Generate Invoice" onclick="${b.isQuotation?`saveQuotation('pdf')`:`generateInvoicePDF('${b.id}')`}">🧾</button>
                   <button class="btn btn-ghost btn-sm btn-icon" onclick="openBillingModal('${b.id}')">✏️</button>
                   <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteBilling('${b.id}')">🗑</button>
@@ -2119,37 +2196,41 @@ function generateInvoicePDF(billingId){
   if(!b){showToast('Billing record not found','error');return;}
   const cl=db.clients.find(c=>c.id===b.clientId);
   const invNo='INV-'+Date.now().toString().slice(-6);
-  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric',timeZone:'Asia/Karachi'});
 
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice ${invNo}</title><style>
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice ${invNo}</title><style>
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Arial',sans-serif;color:#1a1a1a;background:#fff;padding:40px;}
-    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;padding-bottom:20px;border-bottom:3px solid #1e3a5f;}
-    .firm-name{font-size:22px;font-weight:700;color:#1e3a5f;letter-spacing:1px;}
+    .back-btn{display:none;margin-bottom:20px;}
+    @media(max-width:768px){.back-btn{display:block;} body{padding:16px;}}
+    .back-btn button{background:#6D2077;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:14px;cursor:pointer;}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;padding-bottom:20px;border-bottom:3px solid #6D2077;flex-wrap:wrap;gap:10px;}
+    .firm-name{font-size:22px;font-weight:700;color:#6D2077;letter-spacing:1px;}
     .firm-sub{font-size:12px;color:#666;margin-top:4px;}
     .inv-title{text-align:right;}
-    .inv-title h1{font-size:32px;font-weight:300;color:#1e3a5f;letter-spacing:4px;}
+    .inv-title h1{font-size:32px;font-weight:300;color:#6D2077;letter-spacing:4px;}
     .inv-title .inv-no{font-size:13px;color:#666;margin-top:4px;}
     .inv-title .inv-date{font-size:13px;color:#666;}
-    .parties{display:flex;justify-content:space-between;margin-bottom:40px;}
+    .parties{display:flex;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:20px;}
     .party h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px;}
     .party p{font-size:13px;line-height:1.6;}
     .party .name{font-weight:600;font-size:15px;color:#1a1a1a;}
     table{width:100%;border-collapse:collapse;margin-bottom:30px;}
-    thead tr{background:#1e3a5f;color:#fff;}
+    thead tr{background:#6D2077;color:#fff;}
     thead th{padding:12px 16px;text-align:left;font-size:12px;font-weight:600;letter-spacing:0.5px;}
     tbody tr{border-bottom:1px solid #eee;}
     tbody td{padding:14px 16px;font-size:13px;}
     tbody tr:last-child{border-bottom:none;}
     .totals{margin-left:auto;width:280px;}
     .total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:#555;}
-    .total-row.grand{border-top:2px solid #1e3a5f;margin-top:8px;padding-top:12px;font-size:16px;font-weight:700;color:#1e3a5f;}
+    .total-row.grand{border-top:2px solid #6D2077;margin-top:8px;padding-top:12px;font-size:16px;font-weight:700;color:#6D2077;}
     .status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:${b.status==='Received'?'#d1fae5;color:#065f46':'#fef3c7;color:#92400e'};}
-    .footer{margin-top:60px;padding-top:20px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;}
+    .footer{margin-top:60px;padding-top:20px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
     .footer-left{font-size:11px;color:#999;}
-    .footer-right{font-size:12px;color:#1e3a5f;font-weight:600;}
-    @media print{body{padding:20px;}}
+    .footer-right{font-size:12px;color:#6D2077;font-weight:600;}
+    @media print{.back-btn{display:none!important;} body{padding:20px;}}
   </style></head><body>
+  <div class="back-btn"><button onclick="window.close()">← Back to CMP</button></div>
   <div class="header">
     <div>
       <div class="firm-name">A. RAHEEM CONSULTANT</div>
@@ -2246,12 +2327,18 @@ function renderLeads(){
               </div>
               ${l.services?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;">${l.services.split(',').map(s=>`<span class="badge badge-purple" style="font-size:10px;">${escHtml(s.trim())}</span>`).join('')}${l.filingType&&l.filingType!=='N/A'?`<span class="badge badge-blue" style="font-size:10px;">${escHtml(l.filingType)}</span>`:''}${l.companyType&&l.companyType!=='N/A'?`<span class="badge badge-teal" style="font-size:10px;">${escHtml(l.companyType)}</span>`:''}${l.bizNature&&l.bizNature!=='N/A'?`<span class="badge badge-gray" style="font-size:10px;">${escHtml(l.bizNature)}</span>`:''}</div>`:''}
               ${l.notes?`<div style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic;">"${escHtml(l.notes)}"</div>`:''}
-              ${l.submittedAt?`<div style="font-size:11px;color:var(--text3);margin-top:4px;">🕐 Submitted: ${escHtml(l.submittedAt)}</div>`:''}            </div>
+              ${l.submittedAt?`<div style="font-size:11px;color:var(--text3);margin-top:4px;">🕐 Submitted: ${escHtml(l.submittedAt)}</div>`:''}
+              ${(()=>{const days=l.created?Math.floor((Date.now()-new Date(l.created))/(86400000)):0;return days>7?`<div style="font-size:11px;color:var(--red);margin-top:4px;">⚠️ ${days} days old — follow up needed</div>`:days>3?`<div style="font-size:11px;color:var(--yellow);margin-top:4px;">⏰ ${days} days since added</div>`:'';})()}
+              ${l.followUpDate?`<div style="font-size:11px;color:var(--accent);margin-top:4px;">📅 Follow-up: ${fmt(l.followUpDate)}</div>`:''}
+              ${(l.noteHistory||[]).length?`<div style="font-size:11px;color:var(--text3);margin-top:4px;">💬 ${(l.noteHistory||[]).length} note${(l.noteHistory||[]).length>1?'s':''}</div>`:''}
+            </div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-            <button class="btn btn-primary btn-sm" onclick="sendLeadEmail('${l.id}')">✉️ Send Pitch Email</button>
-            <button class="btn btn-secondary btn-sm" onclick="convertLeadToClient('${l.id}')">🔄 Convert to Client</button>
-            <button class="btn btn-secondary btn-sm" onclick="openLeadModal('${l.id}')">✏️</button>
+          <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="sendLeadEmail('${l.id}')">✉️ Pitch</button>
+            ${l.phone?`<button class="btn btn-secondary btn-sm" onclick="openWhatsApp('${escHtml(l.phone)}','${escHtml(l.name||l.contactName)}','${escHtml(l.services||'')}')">💬 WhatsApp</button>`:''}
+            <button class="btn btn-secondary btn-sm" onclick="openNotesHistoryModal('lead','${l.id}')">📝 Notes</button>
+            <button class="btn btn-secondary btn-sm" onclick="convertLeadToClient('${l.id}')">🔄 Convert</button>
+            <button class="btn btn-ghost btn-sm" onclick="openLeadModal('${l.id}')">✏️</button>
             <button class="btn btn-ghost btn-sm" onclick="deleteLead('${l.id}')" style="color:var(--red);margin-left:auto;">🗑</button>
           </div>
         </div>`;
@@ -2279,7 +2366,10 @@ function openLeadModal(id){
         <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="lf-phone" placeholder="+92 300 1234567" value="${escHtml(l?.phone||'')}"></div>
       </div>
       <div class="form-group"><label class="form-label">Required Services (comma separated)</label><input class="form-input" id="lf-services" placeholder="NTN Registration, Tax Returns, SECP Compliance" value="${escHtml(l?.services||'')}"></div>
-      <div class="form-group"><label class="form-label">Estimated Value (PKR)</label><input type="number" class="form-input" id="lf-value" placeholder="0" value="${l?.estimatedValue||''}"></div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Estimated Value (PKR)</label><input type="number" class="form-input" id="lf-value" placeholder="0" value="${l?.estimatedValue||''}"></div>
+        <div class="form-group"><label class="form-label">Follow-up Date</label><input type="date" class="form-input" id="lf-followup" value="${l?.followUpDate||''}"></div>
+      </div>
       <div class="form-group"><label class="form-label">Notes / Follow-up</label><textarea class="form-input" id="lf-notes" placeholder="Any relevant notes, follow-up actions...">${escHtml(l?.notes||'')}</textarea></div>
       ${(l?.filingType||l?.companyType||l?.bizNature||l?.submittedAt)?`
       <div style="margin-top:8px;padding:12px 14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);">
@@ -2300,7 +2390,7 @@ function openLeadModal(id){
 function saveLead(id){
   const db=getDB();
   if(!db.leads) db.leads=[];
-  const data={name:document.getElementById('lf-name').value.trim(),contactName:document.getElementById('lf-contact').value.trim(),company:document.getElementById('lf-company').value.trim(),status:document.getElementById('lf-status').value,email:document.getElementById('lf-email').value.trim(),phone:document.getElementById('lf-phone').value.trim(),services:document.getElementById('lf-services').value.trim(),estimatedValue:Number(document.getElementById('lf-value').value)||0,notes:document.getElementById('lf-notes').value.trim()};
+  const data={name:document.getElementById('lf-name').value.trim(),contactName:document.getElementById('lf-contact').value.trim(),company:document.getElementById('lf-company').value.trim(),status:document.getElementById('lf-status').value,email:document.getElementById('lf-email').value.trim(),phone:document.getElementById('lf-phone').value.trim(),services:document.getElementById('lf-services').value.trim(),estimatedValue:Number(document.getElementById('lf-value').value)||0,followUpDate:document.getElementById('lf-followup').value,notes:document.getElementById('lf-notes').value.trim()};
   if(!data.name){showToast('Lead name is required','error');return;}
   if(id){const idx=db.leads.findIndex(l=>l.id===id);db.leads[idx]={...db.leads[idx],...data};logAudit(`Updated lead: ${data.name}`,'Leads');}
   else{data.id=uid();data.created=new Date().toISOString();db.leads.push(data);logAudit(`Added lead: ${data.name}`,'Leads');}
@@ -2505,6 +2595,364 @@ const message    = isTax ? taxMessage : seсpMessage;
   }
 
   if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+}
+
+// ==================== AGING REPORT ====================
+function showAgingReport(){
+  const db=getDB();
+  const today=new Date();
+  const pending=db.billing.filter(b=>b.status==='Pending'&&!b.isQuotation);
+  const buckets={'0-30':[],'31-60':[],'61-90':[],'90+':[]};
+  pending.forEach(b=>{
+    const days=b.date?Math.floor((today-new Date(b.date))/86400000):0;
+    if(days<=30) buckets['0-30'].push(b);
+    else if(days<=60) buckets['31-60'].push(b);
+    else if(days<=90) buckets['61-90'].push(b);
+    else buckets['90+'].push(b);
+  });
+  const total=pending.reduce((s,b)=>s+Number(b.amount),0);
+  showModal(`<div class="modal modal-lg" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">📊 Aging Report — Overdue Invoices</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        ${Object.entries(buckets).map(([range,items])=>{
+          const amt=items.reduce((s,b)=>s+Number(b.amount),0);
+          return `<div style="flex:1;min-width:120px;padding:12px;background:var(--bg3);border-radius:8px;text-align:center;">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">${range} days</div>
+            <div style="font-size:16px;font-weight:600;color:${range==='90+'?'var(--red)':range==='61-90'?'var(--yellow)':'var(--text)'};">${fmtPKR(amt)}</div>
+            <div style="font-size:11px;color:var(--text3);">${items.length} invoice${items.length!==1?'s':''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Client</th><th>Description</th><th>Amount</th><th>Date</th><th>Days Overdue</th></tr></thead>
+          <tbody>
+            ${pending.length===0?`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3);">No pending invoices</td></tr>`:''}
+            ${pending.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(b=>{
+              const cl=db.clients.find(c=>c.id===b.clientId);
+              const days=b.date?Math.floor((today-new Date(b.date))/86400000):0;
+              return `<tr>
+                <td style="font-size:13px;">${escHtml(cl?.business||cl?.name||'—')}</td>
+                <td style="font-size:13px;">${escHtml(b.description)}</td>
+                <td class="td-mono private-val">${fmtPKR(b.amount)}</td>
+                <td style="font-size:12px;">${fmt(b.date)}</td>
+                <td><span style="color:${days>90?'var(--red)':days>60?'var(--yellow)':'var(--text3)'};font-weight:600;">${days}d</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align:right;font-size:14px;font-weight:600;margin-top:12px;color:var(--red);">Total Outstanding: <span class="private-val">${fmtPKR(total)}</span></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Close</button></div>
+  </div>`);
+}
+
+// ==================== CLIENT BILLING HISTORY ====================
+function viewClientBilling(clientId){
+  const db=getDB();
+  const cl=db.clients.find(c=>c.id===clientId);
+  const bills=db.billing.filter(b=>b.clientId===clientId);
+  const totalBilled=bills.reduce((s,b)=>s+Number(b.amount),0);
+  const totalReceived=bills.filter(b=>b.status==='Received').reduce((s,b)=>s+Number(b.amount),0);
+  showModal(`<div class="modal modal-lg" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">💰 Billing History — ${escHtml(cl?.business||cl?.name)}</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <div style="flex:1;padding:10px;background:var(--bg3);border-radius:8px;text-align:center;"><div style="font-size:11px;color:var(--text3);">Total Billed</div><div style="font-weight:600;font-size:15px;" class="private-val">${fmtPKR(totalBilled)}</div></div>
+        <div style="flex:1;padding:10px;background:var(--bg3);border-radius:8px;text-align:center;"><div style="font-size:11px;color:var(--text3);">Received</div><div style="font-weight:600;font-size:15px;color:var(--green);" class="private-val">${fmtPKR(totalReceived)}</div></div>
+        <div style="flex:1;padding:10px;background:var(--bg3);border-radius:8px;text-align:center;"><div style="font-size:11px;color:var(--text3);">Outstanding</div><div style="font-weight:600;font-size:15px;color:var(--red);" class="private-val">${fmtPKR(totalBilled-totalReceived)}</div></div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Description</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          ${bills.length===0?`<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text3);">No billing records</td></tr>`:''}
+          ${bills.map(b=>`<tr>
+            <td style="font-size:13px;">${escHtml(b.description)}</td>
+            <td class="td-mono private-val">${fmtPKR(b.amount)}</td>
+            <td style="font-size:12px;">${fmt(b.date)}</td>
+            <td>${b.isQuotation?'<span class="badge badge-purple">Quotation</span>':statusBadge(b.status)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Close</button></div>
+  </div>`);
+}
+
+// ==================== QUICK NOTES ====================
+let _quickNotesTimer=null;
+function saveQuickNotes(val){
+  clearTimeout(_quickNotesTimer);
+  _quickNotesTimer=setTimeout(()=>{
+    const db=getDB();db.quickNotes=val;saveDB(db);
+  },500);
+}
+
+// ==================== NOTES HISTORY ====================
+function addNoteHistory(entityType, entityId, note){
+  const db=getDB();
+  if(entityType==='client'){
+    const idx=db.clients.findIndex(c=>c.id===entityId);
+    if(idx<0) return;
+    if(!db.clients[idx].noteHistory) db.clients[idx].noteHistory=[];
+    db.clients[idx].noteHistory.unshift({id:uid(),note,time:new Date().toISOString(),user:db.currentUser?.name||'A. Raheem'});
+  } else if(entityType==='lead'){
+    const idx=(db.leads||[]).findIndex(l=>l.id===entityId);
+    if(idx<0) return;
+    if(!db.leads[idx].noteHistory) db.leads[idx].noteHistory=[];
+    db.leads[idx].noteHistory.unshift({id:uid(),note,time:new Date().toISOString(),user:db.currentUser?.name||'A. Raheem'});
+  }
+  saveDB(db);
+}
+
+function openNotesHistoryModal(entityType, entityId){
+  const db=getDB();
+  const entity=entityType==='client'?db.clients.find(c=>c.id===entityId):(db.leads||[]).find(l=>l.id===entityId);
+  if(!entity) return;
+  const history=entity.noteHistory||[];
+  showModal(`<div class="modal modal-lg" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">📝 Notes History — ${escHtml(entity.business||entity.name||entity.contactName)}</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <input class="form-input" id="new-note-input" placeholder="Add a new note..." style="flex:1;">
+        <button class="btn btn-primary" onclick="submitNewNote('${entityType}','${entityId}')">Add</button>
+      </div>
+      <div style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">
+        ${history.length?history.map(n=>`
+          <div style="padding:10px 12px;background:var(--bg3);border-radius:8px;border-left:3px solid var(--accent);">
+            <div style="font-size:13px;color:var(--text);">${escHtml(n.note)}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;">${escHtml(n.user)} · ${new Date(n.time).toLocaleString('en-PK',{timeZone:'Asia/Karachi',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+          </div>`).join(''):'<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">No notes yet</div>'}
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Close</button></div>
+  </div>`);
+}
+
+function submitNewNote(entityType, entityId){
+  const input=document.getElementById('new-note-input');
+  const note=input?.value.trim();
+  if(!note){showToast('Note cannot be empty','error');return;}
+  addNoteHistory(entityType,entityId,note);
+  input.value='';
+  openNotesHistoryModal(entityType,entityId);
+  showToast('Note added','success');
+}
+
+// ==================== WHATSAPP ====================
+function openWhatsApp(phone, name, service){
+  if(!phone){showToast('No phone number for this lead','error');return;}
+  const cleaned=phone.replace(/\D/g,'');
+  const pkPhone=cleaned.startsWith('92')?cleaned:cleaned.startsWith('0')?'92'+cleaned.slice(1):'92'+cleaned;
+  const msg=encodeURIComponent(`Assalam o Alaikum ${name||''},\n\nI'm Abdullah from A. Raheem Consultant. I noticed your interest in our ${service||'tax & compliance'} services. I'd love to discuss how we can help you.\n\nPlease let me know a convenient time to connect.\n\nJazakAllah Khair`);
+  window.open(`https://wa.me/${pkPhone}?text=${msg}`,'_blank');
+  logAudit(`WhatsApp message opened for ${name}`,'Leads');
+}
+
+// ==================== REFERRAL COMMISSION ====================
+function openReferralModal(clientId){
+  const db=getDB();
+  const cl=db.clients.find(c=>c.id===clientId);
+  if(!cl) return;
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">🤝 Referral Commission — ${escHtml(cl.business||cl.name)}</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Referred By</label><input class="form-input" id="ref-by" placeholder="Name of person who referred" value="${escHtml(cl.referredBy||'')}"></div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Commission Type</label>
+          <select class="form-input" id="ref-type">
+            <option value="percent" ${cl.referralType==='percent'?'selected':''}>Percentage %</option>
+            <option value="fixed" ${cl.referralType==='fixed'?'selected':''}>Fixed Amount PKR</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Amount / %</label><input type="number" class="form-input" id="ref-amount" placeholder="e.g. 10 or 5000" value="${cl.referralAmount||''}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Commission Paid?</label>
+        <select class="form-input" id="ref-paid">
+          <option value="no" ${!cl.referralPaid?'selected':''}>Not Paid</option>
+          <option value="yes" ${cl.referralPaid?'selected':''}>Paid</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button><button class="btn btn-primary" onclick="saveReferral('${clientId}')">Save</button></div>
+  </div>`);
+}
+
+function saveReferral(clientId){
+  const db=getDB();
+  const idx=db.clients.findIndex(c=>c.id===clientId);
+  if(idx<0) return;
+  db.clients[idx].referredBy=document.getElementById('ref-by').value.trim();
+  db.clients[idx].referralType=document.getElementById('ref-type').value;
+  db.clients[idx].referralAmount=Number(document.getElementById('ref-amount').value)||0;
+  db.clients[idx].referralPaid=document.getElementById('ref-paid').value==='yes';
+  logAudit(`Updated referral info for ${db.clients[idx].business||db.clients[idx].name}`,'Clients');
+  saveDB(db);closeModalForce();showToast('Referral info saved','success');
+}
+
+// ==================== MEETING LOG ====================
+function openMeetingLogModal(clientId){
+  const db=getDB();
+  const cl=db.clients.find(c=>c.id===clientId);
+  if(!cl) return;
+  const meetings=cl.meetings||[];
+  showModal(`<div class="modal modal-lg" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">📅 Meeting Log — ${escHtml(cl.business||cl.name)}</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <input class="form-input" id="mtg-date" type="date" value="${new Date().toISOString().split('T')[0]}">
+        <input class="form-input" id="mtg-agenda" placeholder="Agenda / Purpose">
+        <textarea class="form-input" id="mtg-outcome" placeholder="Outcome / Next steps" rows="2"></textarea>
+        <button class="btn btn-primary btn-sm" onclick="saveMeeting('${clientId}')">+ Add Meeting</button>
+      </div>
+      <div style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">
+        ${meetings.length?meetings.map(m=>`
+          <div style="padding:10px 12px;background:var(--bg3);border-radius:8px;">
+            <div style="font-size:12px;font-weight:600;color:var(--accent);">📅 ${fmt(m.date)}</div>
+            <div style="font-size:13px;margin-top:4px;">${escHtml(m.agenda)}</div>
+            ${m.outcome?`<div style="font-size:12px;color:var(--text3);margin-top:4px;">↳ ${escHtml(m.outcome)}</div>`:''}
+          </div>`).join(''):'<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">No meetings logged</div>'}
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Close</button></div>
+  </div>`);
+}
+
+function saveMeeting(clientId){
+  const db=getDB();
+  const idx=db.clients.findIndex(c=>c.id===clientId);
+  if(idx<0) return;
+  const agenda=document.getElementById('mtg-agenda').value.trim();
+  if(!agenda){showToast('Agenda is required','error');return;}
+  if(!db.clients[idx].meetings) db.clients[idx].meetings=[];
+  db.clients[idx].meetings.unshift({id:uid(),date:document.getElementById('mtg-date').value,agenda,outcome:document.getElementById('mtg-outcome').value.trim(),time:new Date().toISOString()});
+  logAudit(`Logged meeting for ${db.clients[idx].business||db.clients[idx].name}`,'Clients');
+  saveDB(db);openMeetingLogModal(clientId);showToast('Meeting logged','success');
+}
+
+// ==================== FOLLOW-UP DATE ====================
+function setFollowUp(entityType, entityId, date){
+  const db=getDB();
+  if(entityType==='client'){
+    const idx=db.clients.findIndex(c=>c.id===entityId);
+    if(idx>=0){db.clients[idx].followUpDate=date;saveDB(db);showToast('Follow-up date set','success');}
+  } else {
+    const idx=(db.leads||[]).findIndex(l=>l.id===entityId);
+    if(idx>=0){db.leads[idx].followUpDate=date;saveDB(db);showToast('Follow-up date set','success');}
+  }
+}
+
+// ==================== PARTIAL PAYMENTS ====================
+function openPartialPaymentModal(billingId){
+  const db=getDB();
+  const b=db.billing.find(x=>x.id===billingId);
+  if(!b) return;
+  const paid=(b.partialPayments||[]).reduce((s,p)=>s+Number(p.amount),0);
+  const remaining=Number(b.amount)-paid;
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">💵 Partial Payment — ${escHtml(b.description)}</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body">
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px;padding:12px;background:var(--bg3);border-radius:8px;">
+        <div><div style="font-size:11px;color:var(--text3);">Total</div><div style="font-weight:600;">${fmtPKR(b.amount)}</div></div>
+        <div><div style="font-size:11px;color:var(--text3);">Paid</div><div style="font-weight:600;color:var(--green);">${fmtPKR(paid)}</div></div>
+        <div><div style="font-size:11px;color:var(--text3);">Remaining</div><div style="font-weight:600;color:var(--red);">${fmtPKR(remaining)}</div></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Amount Received</label><input type="number" class="form-input" id="pp-amount" placeholder="0" max="${remaining}"></div>
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="pp-date" value="${new Date().toISOString().split('T')[0]}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="pp-notes" placeholder="e.g. Bank transfer, cash..."></div>
+      ${(b.partialPayments||[]).length?`<div style="margin-top:10px;"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">Payment History</div>${(b.partialPayments||[]).map(p=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);"><span>${fmt(p.date)} ${p.notes?'· '+escHtml(p.notes):''}</span><span style="color:var(--green);font-weight:500;">+${fmtPKR(p.amount)}</span></div>`).join('')}</div>`:''}
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button><button class="btn btn-primary" onclick="savePartialPayment('${billingId}')">Record Payment</button></div>
+  </div>`);
+}
+
+function savePartialPayment(billingId){
+  const db=getDB();
+  const idx=db.billing.findIndex(b=>b.id===billingId);
+  if(idx<0) return;
+  const amount=Number(document.getElementById('pp-amount').value)||0;
+  if(!amount){showToast('Enter an amount','error');return;}
+  if(!db.billing[idx].partialPayments) db.billing[idx].partialPayments=[];
+  db.billing[idx].partialPayments.push({id:uid(),amount,date:document.getElementById('pp-date').value,notes:document.getElementById('pp-notes').value.trim()});
+  const totalPaid=db.billing[idx].partialPayments.reduce((s,p)=>s+Number(p.amount),0);
+  if(totalPaid>=Number(db.billing[idx].amount)){
+    db.billing[idx].status='Received';db.billing[idx].receivedDate=new Date().toISOString().split('T')[0];
+    showToast('Fully paid — marked as Received','success');
+  } else {
+    showToast(`Payment of ${fmtPKR(amount)} recorded`,'success');
+  }
+  logAudit(`Partial payment ${fmtPKR(amount)} for ${db.billing[idx].description}`,'Billing');
+  saveDB(db);closeModalForce();renderBilling();
+}
+
+// ==================== EXPENSE TRACKER ====================
+function renderExpenses(){
+  const db=getDB();
+  const expenses=db.expenses||[];
+  const total=expenses.reduce((s,e)=>s+Number(e.amount),0);
+  const income=db.billing.filter(b=>b.status==='Received').reduce((s,b)=>s+Number(b.amount),0);
+  document.getElementById('page-content').innerHTML=`
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+      <div class="stat-card stat-red" style="flex:1;min-width:140px;"><div class="stat-label">Total Expenses</div><div class="stat-value private-val" style="font-size:18px;">${fmtPKR(total)}</div></div>
+      <div class="stat-card stat-green" style="flex:1;min-width:140px;"><div class="stat-label">Net Profit</div><div class="stat-value private-val" style="font-size:18px;">${fmtPKR(income-total)}</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${expenses.length===0?`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3);">No expenses recorded yet</td></tr>`:''}
+          ${expenses.map(e=>`<tr>
+            <td>${escHtml(e.description)}</td>
+            <td><span class="badge badge-gray">${escHtml(e.category||'General')}</span></td>
+            <td class="private-val td-mono">${fmtPKR(e.amount)}</td>
+            <td style="font-size:12px;">${fmt(e.date)}</td>
+            <td><button class="btn btn-ghost btn-sm btn-icon" onclick="deleteExpense('${e.id}')">🗑</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function openExpenseModal(){
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">💸 Add Expense</span><span class="close-btn" onclick="closeModalForce()">×</span></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Description *</label><input class="form-input" id="ex-desc" placeholder="e.g. Office rent, Software subscription"></div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Amount (PKR) *</label><input type="number" class="form-input" id="ex-amount" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="ex-date" value="${new Date().toISOString().split('T')[0]}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-input" id="ex-cat">
+          <option>General</option><option>Office</option><option>Software</option><option>Marketing</option><option>Travel</option><option>Professional Fees</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModalForce()">Cancel</button><button class="btn btn-primary" onclick="saveExpense()">Save</button></div>
+  </div>`);
+}
+
+function saveExpense(){
+  const db=getDB();
+  const desc=document.getElementById('ex-desc').value.trim();
+  const amount=Number(document.getElementById('ex-amount').value)||0;
+  if(!desc||!amount){showToast('Description and amount required','error');return;}
+  if(!db.expenses) db.expenses=[];
+  db.expenses.unshift({id:uid(),description:desc,amount,date:document.getElementById('ex-date').value,category:document.getElementById('ex-cat').value,created:new Date().toISOString()});
+  logAudit(`Added expense: ${desc} ${fmtPKR(amount)}`,'Expenses');
+  saveDB(db);closeModalForce();renderExpenses();showToast('Expense recorded','success');
+}
+
+function deleteExpense(id){
+  confirmDelete('Delete this expense?',`function(){const db=getDB();db.expenses=db.expenses.filter(e=>e.id!=='${id}');saveDB(db);renderExpenses();}`);
+}
+
+function renderExpensesActions(){
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>`;
 }
 
 // ==================== SETTINGS ====================
@@ -2736,7 +3184,7 @@ function renderAudit(){
         ${db.audit.slice(0,100).map(a=>`<div class="audit-item">
           <div>
             <div class="audit-desc">${escHtml(a.action)}</div>
-            <div class="audit-user">${escHtml(a.user)} · <span class="badge badge-${a.module==='FBR'?'blue':a.module==='SECP'?'purple':a.module==='Clients'?'teal':a.module==='Billing'?'green':a.module==='Leads'?'orange':'gray'}">${escHtml(a.module||'General')}</span></div>
+            <div class="audit-user">${escHtml(a.user)} · <span style="font-size:11px;color:var(--text3);">📱 ${escHtml(a.device||'Unknown')}</span> · <span class="badge badge-${a.module==='FBR'?'blue':a.module==='SECP'?'purple':a.module==='Clients'?'teal':a.module==='Billing'?'green':a.module==='Leads'?'orange':'gray'}">${escHtml(a.module||'General')}</span></div>
           </div>
           <div class="audit-time">${fmt(a.time)}<br>${a.time?new Date(a.time).toLocaleTimeString('en-PK',{hour:'2-digit',minute:'2-digit'}):''}</div>
         </div>`).join('')}
