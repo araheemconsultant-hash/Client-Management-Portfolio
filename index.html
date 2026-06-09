@@ -735,8 +735,13 @@ function hideLoadingScreen() {
   if (el) { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(), 300); }
 }
 
+// ==================== DEVICE DETECTION ====================
+function isIOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
 // ==================== GOOGLE DRIVE — AUTO CONNECT + SYNC ====================
-// Called once Google GSI script finishes loading
 function onGoogleScriptLoad() {
   try {
     tokenClient = google.accounts.oauth2.initTokenClient({
@@ -745,9 +750,21 @@ function onGoogleScriptLoad() {
       login_hint: 'araheem.consultant@gmail.com',
       callback: handleTokenResponse
     });
-    // Auto-request token silently (no popup on first load)
-    // We use prompt:'' to try to get token without user interaction if already authorized
-    tokenClient.requestAccessToken({ prompt: '' });
+
+    if (isIOS()) {
+      // iOS Safari blocks popups on page load
+      // If user has connected before, try silent token refresh (no popup)
+      // If not, boot with local data and show connect prompt
+      const wasConnected = localStorage.getItem('ct_drive_was_connected');
+      if (wasConnected) {
+        tokenClient.requestAccessToken({ prompt: '' });
+      } else {
+        bootApp(false);
+      }
+    } else {
+      // Desktop/Android — silent token request works fine
+      tokenClient.requestAccessToken({ prompt: '' });
+    }
   } catch(e) {
     console.warn('GSI init error:', e);
     bootApp(false);
@@ -756,11 +773,12 @@ function onGoogleScriptLoad() {
 
 async function handleTokenResponse(res) {
   if (res.error) {
-    // If silent auth failed (user not previously authorized), show connect button
     bootApp(false);
     return;
   }
   driveAccessToken = res.access_token;
+  // Remember that user has connected before (for iOS silent retry)
+  localStorage.setItem('ct_drive_was_connected', '1');
   updateDriveUI(true);
   // Try to load data from Drive
   showLoadingScreen('Loading your data from Google Drive…');
@@ -860,7 +878,9 @@ function handleDriveConnect() {
     return;
   }
   if (!tokenClient) { showToast('Google API not ready. Refresh the page.', 'error'); return; }
-  tokenClient.requestAccessToken({ prompt: 'consent' });
+  // On iOS, user tapped the button — this counts as a user gesture, popup is allowed
+  // On desktop, use consent prompt
+  tokenClient.requestAccessToken({ prompt: isIOS() ? 'consent' : 'consent' });
 }
 
 // Called on every page open — pull latest from Drive to sync changes from other devices
@@ -922,8 +942,26 @@ function bootApp(driveConnected) {
   // PWA setup
   registerServiceWorker();
   updateOnlineStatus();
-  // Periodically refresh from Drive (every 2 minutes) to catch changes from other devices
-  setInterval(refreshFromDrive, 120000);
+
+  // ── Auto-refresh: pull from Drive every 30 seconds ──
+  setInterval(refreshFromDrive, 30000);
+
+  // ── Visibility refresh: pull from Drive when tab becomes visible ──
+  // This handles the case where you make changes on phone then switch to laptop tab
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && driveAccessToken) {
+      refreshFromDrive();
+    }
+  });
+
+  // ── iOS: show a connect prompt in the disconnect banner if not connected ──
+  if (isIOS() && !driveConnected) {
+    const banner = document.getElementById('drive-disconnect-banner');
+    if (banner) {
+      banner.style.display = 'flex';
+      banner.innerHTML = '☁️ Tap to connect Google Drive and sync your data. <button onclick="handleDriveConnect()" style="background:none;border:1px solid #fecaca;color:#fecaca;padding:3px 10px;border-radius:6px;cursor:pointer;font-size:12px;margin-left:4px;">Connect Drive</button>';
+    }
+  }
 }
 
 // ==================== TOAST ====================
